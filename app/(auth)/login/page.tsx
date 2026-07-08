@@ -36,7 +36,8 @@ export default function LoginPage() {
     const { error } = await authClient.signIn.emailOtp({ email, otp })
     setLoading(false)
     if (error) { setError(error.message ?? "Code invalide."); return }
-    window.location.href = "/"
+    const { hasProfile } = await fetch("/api/me").then((r) => r.json())
+    window.location.href = hasProfile ? "/" : "/profile"
   }
 
   return (
