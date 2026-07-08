@@ -1,208 +1,194 @@
 # 🎲 Wargame Matchmaker
 
-> Plateforme de mise en relation pour joueurs de wargame — affichez vos disponibilités, trouvez des adversaires.
+> A matchmaking platform for wargame players — post your availability, find opponents.
 
 ---
 
-## Présentation
+## Overview
 
-Wargame Matchmaker permet aux passionnés de wargame (Warhammer 40K, Age of Sigmar...) de publier leurs créneaux de disponibilité et de trouver facilement des adversaires pour une partie.
+Wargame Matchmaker lets wargame enthusiasts (Warhammer 40K, Age of Sigmar...) publish their availability slots and easily find opponents for a game.
 
-**Cas d'usage typique :**
+**Typical use case:**
 
-1. Tu es dispo samedi après-midi pour une partie de WH40K avec tes Sœurs de Bataille
-2. Tu publies ta dispo sur Wargame Matchmaker
-3. Un autre joueur te contacte directement via l'app
+1. You're free Saturday afternoon for a WH40K game with your Sisters of Battle
+2. You post your availability on Wargame Matchmaker
+3. Another player contacts you via your contact information
 
 ---
 
-## Fonctionnalités
+## Features
 
-### Authentification
+### Authentication
 
-- Connexion sans mot de passe par **OTP envoyé par email** (magic link)
-- Pas de création de compte fastidieuse
+- Passwordless login via **OTP sent by email**
+- No tedious account registration
 
-### Profil utilisateur
+### User Profile
 
-- Pseudo
-- Jeux pratiqués
-- Armées par jeu
-- Coordonnées de contact (téléphone, email) — **visibles uniquement lors d'une prise de contact**
+- Username
+- Contact details (phone, email) — **only revealed when someone contacts you**
 
-### Calendrier des disponibilités
+### Availability Calendar
 
-- Vue mensuelle du mois en cours
-- Chaque jour affiche les dispos sous forme d'émojis + compteur par jeu (ex: ⚔️ 3 · 🃏 1)
-- Filtre par jeu
-- Sélection d'un jour → liste détaillée des dispos du jour
+- Monthly view of the current month
+- Each day shows availabilities as emojis + count per game (e.g. ⚔️ 3 · 🃏 1)
+- Filter by game
+- Click a day → detailed list of availabilities for that day
 
-### Création d'une disponibilité
+### Creating an Availability
 
 - Date
-- Créneau horaire (début / fin)
-- Jeu
+- Time slot (start / end)
+- Game
 - Format
-- Armée
-- Champ texte libre pour les détails (niveau, lieu, format points...)
+- Army
+- Free text field for details (skill level, location, points format...)
 
-### Consultation & contact
+### Viewing & Contacting
 
-- Clic sur une dispo → vue détaillée
-- Bouton **Contact** → révèle les coordonnées du joueur (email ou téléphone)
+- Click an availability → detailed view
+- **Contact** button → reveals the player's contact details (email or phone)
 
 ---
 
-## Stack technique
+## Tech Stack
 
 ### Frontend
 
-| Outil                                          | Usage                         |
+| Tool                                           | Purpose                       |
 | ---------------------------------------------- | ----------------------------- |
-| [Next.js 16](https://nextjs.org/) (App Router) | Framework React, routing, SSR |
-| TypeScript                                     | Typage statique end-to-end    |
-| Tailwind CSS                                   | Styles utilitaires            |
+| [Next.js 16](https://nextjs.org/) (App Router) | React framework, routing, SSR |
+| TypeScript                                     | End-to-end static typing      |
+| Tailwind CSS                                   | Utility-first styling         |
 
-### Authentification
+### Authentication
 
-| Outil                                        | Usage                   |
-| -------------------------------------------- | ----------------------- |
-| [Auth.js v5](https://authjs.dev/) (NextAuth) | Session, OTP email flow |
-| [Resend](https://resend.com/)                | Envoi des emails OTP    |
+| Tool                                               | Purpose                 |
+| -------------------------------------------------- | ----------------------- |
+| [Better Auth](https://better-auth.com/) (emailOTP) | Session, OTP email flow |
+| [Resend](https://resend.com/)                      | OTP email delivery      |
 
 ### Backend
 
-| Outil                                    | Usage               |
-| ---------------------------------------- | ------------------- |
-| Next.js Route Handlers                   | API REST interne    |
-| [Drizzle ORM](https://orm.drizzle.team/) | Requêtes SQL typées |
+| Tool                                     | Purpose               |
+| ---------------------------------------- | --------------------- |
+| Next.js Route Handlers                   | Internal REST API     |
+| [Drizzle ORM](https://orm.drizzle.team/) | Type-safe SQL queries |
 
-### Base de données
+### Database
 
-| Outil                                  | Usage                              |
-| -------------------------------------- | ---------------------------------- |
-| [Neon](https://neon.tech/) (PostgreSQL) | Base de données serverless         |
+| Tool                                    | Purpose             |
+| --------------------------------------- | ------------------- |
+| [Neon](https://neon.tech/) (PostgreSQL) | Serverless database |
 
-### Infra & déploiement
+### Infrastructure & Deployment
 
-| Outil                         | Usage                                       |
-| ----------------------------- | ------------------------------------------- |
-| [Vercel](https://vercel.com/) | Hosting, CI/CD automatique                  |
-| Neon ↔ Vercel integration     | `DATABASE_URL` injecté automatiquement      |
-| GitHub Actions                | Lint, tests, checks PR                      |
+| Tool                          | Purpose                               |
+| ----------------------------- | ------------------------------------- |
+| [Vercel](https://vercel.com/) | Hosting, automatic CI/CD              |
+| Neon ↔ Vercel integration     | `DATABASE_URL` injected automatically |
 
 ---
 
 ## Architecture
 
 ```
-Wargame Matchmaker/
+wgm/
 ├── app/
 │   ├── (auth)/
-│   │   └── login/              # Page de connexion OTP
+│   │   └── login/              # OTP login page
 │   ├── (app)/
-│   │   ├── layout.tsx          # Layout protégé (session requise)
-│   │   ├── page.tsx            # Calendrier des dispos (page d'accueil)
-│   │   ├── disponibilite/
-│   │   │   └── new/            # Formulaire de création
-│   │   └── profil/             # Gestion du profil
+│   │   ├── layout.tsx          # Protected layout (session required)
+│   │   ├── page.tsx            # Availability calendar (home page)
+│   │   └── disponibilite/      # Availability actions
 │   └── api/
-│       ├── auth/               # Auth.js handlers
-│       ├── disponibilites/     # CRUD disponibilités
-│       └── profil/             # CRUD profil
+│       ├── auth/               # Better Auth handlers
+│       └── me/                 # Current user profile check
 ├── components/
-│   ├── calendar/               # Grille mensuelle + émojis
-│   ├── dispo/                  # Cards et formulaires de dispo
-│   └── ui/                     # Composants génériques
+│   ├── calendar/               # Monthly grid + emojis + day detail
+│   ├── dispo/                  # Availability modal & forms
+│   ├── profile/                # Profile form & dispo list
+│   ├── options/                # Display options (scanlines toggle)
+│   └── ui/                     # Generic components (emoji picker)
 ├── lib/
 │   ├── db/
-│   │   ├── schema.ts           # Schéma Drizzle
-│   │   └── index.ts            # Client DB
-│   └── auth.ts                 # Config Auth.js
+│   │   ├── schema.ts           # Drizzle schema
+│   │   └── index.ts            # DB client
+│   ├── auth.ts                 # Better Auth config
+│   └── auth-client.ts          # Better Auth client
 └── drizzle/
-    └── migrations/             # Migrations SQL
+    └── migrations/             # SQL migrations
 ```
 
 ---
 
-## Schéma de base de données
+## Database Schema
 
 ```sql
--- Utilisateurs
-users (id, email, created_at)
+-- Better Auth tables
+user        (id, email, email_verified, ...)
+session     (id, user_id, token, expires_at, ...)
+account     (id, user_id, provider_id, ...)
+verification (id, identifier, value, expires_at)
 
--- Profils
+-- App tables
 profiles (id, user_id, pseudo, phone, contact_email, created_at)
-
--- Jeux disponibles
-games (id, name, emoji, slug)
-
--- Armées par jeu
-armies (id, game_id, name)
-
--- Liens profil ↔ jeux pratiqués
+games    (id, name, emoji, slug)
 profile_games (profile_id, game_id)
-
--- Liens profil ↔ armées
-profile_armies (profile_id, army_id)
-
--- Disponibilités
 availabilities (
-  id, user_id, game_id, army_id,
-  date, time_start, time_end,
-  format, notes,
-  created_at
+  id, user_id, game_id,
+  army, date, time_start, time_end,
+  format, notes, created_at
 )
 ```
 
-> Les champs `phone` et `contact_email` de `profiles` sont couverts par la **Row Level Security** de Supabase : ils ne sont exposés que lors d'un appel authentifié explicite (bouton Contact).
-
 ---
 
-## Démarrage rapide
+## Quick Start
 
-### Prérequis
+### Prerequisites
 
 - Node.js 20+
-- Un compte [Neon](https://neon.tech/) (PostgreSQL serverless)
-- Un compte [Resend](https://resend.com/)
+- A [Neon](https://neon.tech/) account (serverless PostgreSQL)
+- A [Resend](https://resend.com/) account (you'll need a verified domain to send mail to other adress than yours)
 
 ### Installation
 
 ```bash
-git clone https://github.com/ton-pseudo/Wargame Matchmaker
-cd Wargame Matchmaker
+git clone https://github.com/your-username/wgm
+cd wgm
 npm install
 ```
 
-### Variables d'environnement
+### Environment Variables
 
-Créer un fichier `.env.local` :
+Create a `.env.local` file:
 
 ```env
-# Auth.js
-AUTH_SECRET=                    # openssl rand -base64 32
-AUTH_TRUST_HOST=true
+# Better Auth
+BETTER_AUTH_SECRET=          # openssl rand -base64 32
+BETTER_AUTH_URL=             # http://localhost:3000 (or your production URL)
 
-# Resend (envoi OTP)
-AUTH_RESEND_KEY=re_xxxxxxxxxxxx
+# Resend (OTP delivery)
+RESEND_API_KEY=re_xxxxxxxxxxxx
+RESEND_FROM_EMAIL=noreply@your-domain.com
 
-# Base de données
+# Database
 DATABASE_URL=postgresql://...
+DATABASE_URL_UNPOOLED=postgresql://...   # for drizzle-kit migrations
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### Base de données
+### Database
 
 ```bash
-# Générer et appliquer les migrations
-npx drizzle-kit generate
-npx drizzle-kit migrate
+npm run db:generate
+npm run db:migrate
 ```
 
-### Lancer en développement
+### Run in Development
 
 ```bash
 npm run dev
@@ -210,16 +196,6 @@ npm run dev
 
 ---
 
-## Roadmap
-
-- [ ] MVP : auth + profil + calendrier + création/consultation de dispo
-- [ ] Notifications email lors d'une prise de contact
-- [ ] Localisation (ville / distance) pour filtrer les joueurs proches
-- [ ] Page shop / club avec agenda public
-- [ ] Application mobile (PWA ou React Native)
-
----
-
-## Licence
+## License
 
 MIT
