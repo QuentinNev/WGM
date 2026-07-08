@@ -34,22 +34,24 @@ type Props = {
   selectedGameId?: string
   selectedDay?: string
   dayDispos: DayDispo[]
+  showOwn: boolean
 }
 
 export function CalendarGrid({
   year, month, byDate, games, armies,
-  selectedGameId, selectedDay, dayDispos,
+  selectedGameId, selectedDay, dayDispos, showOwn,
 }: Props) {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
 
   const pad = (n: number) => String(n).padStart(2, "0")
 
-  function buildUrl(y: number, m: number, opts: { gameId?: string; day?: string } = {}) {
+  function buildUrl(y: number, m: number, opts: { gameId?: string; day?: string; own?: boolean } = {}) {
     const params = new URLSearchParams()
     params.set("month", `${y}-${pad(m)}`)
-    if (opts.gameId) params.set("game", opts.gameId)
-    if (opts.day)    params.set("day", opts.day)
+    if (opts.gameId)  params.set("game", opts.gameId)
+    if (opts.day)     params.set("day", opts.day)
+    if (opts.own)     params.set("own", "1")
     return `/?${params}`
   }
 
@@ -58,16 +60,19 @@ export function CalendarGrid({
     let y = year
     if (m > 12) { m = 1; y++ }
     if (m < 1)  { m = 12; y-- }
-    router.push(buildUrl(y, m, { gameId: selectedGameId }))
+    router.push(buildUrl(y, m, { gameId: selectedGameId, own: showOwn }))
   }
 
   function selectDay(dateStr: string) {
-    // Toggle : re-cliquer sur le même jour ferme le panneau
     if (selectedDay === dateStr) {
-      router.push(buildUrl(year, month, { gameId: selectedGameId }))
+      router.push(buildUrl(year, month, { gameId: selectedGameId, own: showOwn }))
     } else {
-      router.push(buildUrl(year, month, { gameId: selectedGameId, day: dateStr }))
+      router.push(buildUrl(year, month, { gameId: selectedGameId, day: dateStr, own: showOwn }))
     }
+  }
+
+  function toggleOwn() {
+    router.push(buildUrl(year, month, { gameId: selectedGameId, day: selectedDay, own: !showOwn }))
   }
 
   const firstDayOfWeek = new Date(year, month - 1, 1).getDay()
@@ -107,8 +112,8 @@ export function CalendarGrid({
           </div>
         </div>
 
-        {/* Actions + filtre */}
-        <div className="flex items-center gap-4">
+        {/* Actions + filtres */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setModalOpen(true)}
             className="border border-screen-glow px-4 py-2 text-sm text-screen-glow tracking-widest uppercase hover:bg-screen-glow/10 transition-colors glow-text-sm"
@@ -117,7 +122,7 @@ export function CalendarGrid({
           </button>
           <select
             value={selectedGameId ?? ""}
-            onChange={(e) => router.push(buildUrl(year, month, { gameId: e.target.value || undefined, day: selectedDay }))}
+            onChange={(e) => router.push(buildUrl(year, month, { gameId: e.target.value || undefined, day: selectedDay, own: showOwn }))}
             className="border border-screen-border bg-screen-bg px-4 py-2 text-sm text-screen-base focus:border-screen-glow focus:outline-none transition-colors"
           >
             <option value="">// Tous les jeux</option>
@@ -125,6 +130,16 @@ export function CalendarGrid({
               <option key={g.id} value={g.id}>{g.emoji} {g.name}</option>
             ))}
           </select>
+          <button
+            onClick={toggleOwn}
+            className={`border px-4 py-2 text-sm tracking-widest uppercase transition-colors ${
+              showOwn
+                ? "border-screen-glow text-screen-glow bg-screen-glow/10 glow-text-sm"
+                : "border-screen-border text-screen-muted hover:border-screen-muted"
+            }`}
+          >
+            Mes dispos
+          </button>
         </div>
 
         {/* Grille */}

@@ -1,14 +1,21 @@
-import { and, eq, gte, lte, sql } from "drizzle-orm"
+import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
+import { headers } from "next/headers"
 import { db } from "@/lib/db"
 import { availabilities, armies, games, profiles } from "@/lib/db/schema"
+import { auth } from "@/lib/auth"
 import { CalendarGrid } from "@/components/calendar/CalendarGrid"
 
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string; game?: string }>
+  searchParams: Promise<{ month?: string; game?: string; day?: string; own?: string }>
 }) {
-  const { month: monthParam, game: gameId, day: selectedDay } = await searchParams
+  const { month: monthParam, game: gameId, day: selectedDay, own } = await searchParams
+
+  const showOwn = own === "1"
+
+  const session = await auth.api.getSession({ headers: await headers() })
+  const userId = session!.user.id
 
   const now = new Date()
   let year = now.getFullYear()
@@ -38,6 +45,7 @@ export default async function CalendarPage({
           gte(availabilities.date, startDate),
           lte(availabilities.date, endDate),
           gameId ? eq(availabilities.gameId, gameId) : undefined,
+          !showOwn ? ne(availabilities.userId, userId) : undefined,
         )
       )
       .groupBy(availabilities.date, games.emoji),
@@ -58,7 +66,12 @@ export default async function CalendarPage({
           .innerJoin(games, eq(availabilities.gameId, games.id))
           .leftJoin(armies, eq(availabilities.armyId, armies.id))
           .leftJoin(profiles, eq(availabilities.userId, profiles.userId))
-          .where(eq(availabilities.date, selectedDay))
+          .where(
+            and(
+              eq(availabilities.date, selectedDay),
+              !showOwn ? ne(availabilities.userId, userId) : undefined,
+            )
+          )
           .orderBy(availabilities.timeStart)
       : Promise.resolve([]),
   ])
@@ -82,6 +95,7 @@ export default async function CalendarPage({
       selectedGameId={gameId}
       selectedDay={selectedDay}
       dayDispos={dayDispos}
+      showOwn={showOwn}
     />
   )
 }
