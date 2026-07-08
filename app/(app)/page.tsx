@@ -1,6 +1,6 @@
 import { and, eq, gte, lte, sql } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { availabilities, games } from "@/lib/db/schema"
+import { availabilities, armies, games } from "@/lib/db/schema"
 import { CalendarGrid } from "@/components/calendar/CalendarGrid"
 
 export default async function CalendarPage({
@@ -22,8 +22,9 @@ export default async function CalendarPage({
   const startDate = `${year}-${pad(month)}-01`
   const endDate = `${year}-${pad(month)}-${new Date(year, month, 0).getDate()}`
 
-  const [allGames, rows] = await Promise.all([
+  const [allGames, allArmies, rows] = await Promise.all([
     db.select().from(games),
+    db.select().from(armies),
     db
       .select({
         date: availabilities.date,
@@ -57,6 +58,7 @@ export default async function CalendarPage({
       month={month}
       byDate={byDate}
       games={allGames}
+      armies={allArmies}
       selectedGameId={gameId}
     />
   )
