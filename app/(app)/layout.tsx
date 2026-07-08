@@ -27,7 +27,7 @@ export default async function AppLayout({
             <a href="/disponibilite/new" className="hover:underline">
               + Dispo
             </a>
-            <a href="/profil" className="hover:underline">
+            <a href="/profile" className="hover:underline">
               Profil
             </a>
           </div>

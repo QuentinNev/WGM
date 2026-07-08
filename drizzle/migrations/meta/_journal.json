@@ -8,6 +8,13 @@
       "when": 1783500544790,
       "tag": "0000_peaceful_gamma_corps",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783503804495,
+      "tag": "0001_open_radioactive_man",
+      "breakpoints": true
     }
   ]
 }
