@@ -42,7 +42,7 @@ export default function LoginPage() {
             WGM.SYS
           </div>
           <div className="text-xs text-screen-muted tracking-widest uppercase">
-            Wargame Matchmaker — v0.1.0
+            Wargame Matchmaker — v0.2.1
           </div>
         </div>
 
@@ -118,10 +118,6 @@ export default function LoginPage() {
               ⚠ {error}
             </div>
           )}
-        </div>
-
-        <div className="mt-4 text-center text-xs text-screen-border tracking-widest">
-          TOUTES COMMUNICATIONS ENREGISTRÉES — INQUISITION OMNISSIAH
         </div>
       </div>
     </div>
