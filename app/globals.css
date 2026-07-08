@@ -8,6 +8,18 @@
     color: #7dc97d;
   }
 
+  /* Pickers natifs date + time */
+  input[type="date"],
+  input[type="time"] {
+    color-scheme: dark;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7) sepia(1) hue-rotate(70deg) brightness(0.9);
+    cursor: pointer;
+  }
+
   /* Scanlines — actives uniquement si la classe est présente */
   body.scanlines::after {
     content: "";

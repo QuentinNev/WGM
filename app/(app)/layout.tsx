@@ -17,9 +17,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <a href="/" className="hover:text-screen-glow hover:glow-text-sm transition-colors">
               // Calendrier
             </a>
-            <a href="/disponibilite/new" className="hover:text-screen-glow hover:glow-text-sm transition-colors">
-              + Dispo
-            </a>
             <a href="/profile" className="hover:text-screen-glow hover:glow-text-sm transition-colors">
               // Profil
             </a>
