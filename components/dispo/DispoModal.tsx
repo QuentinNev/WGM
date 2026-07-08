@@ -28,12 +28,14 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
   const [selectedGameId, setSelectedGameId] = useState("")
   const [showNewGame,    setShowNewGame]     = useState(false)
   const [gameEmoji,      setGameEmoji]       = useState("⚔️")
+  const [gameName,       setGameName]        = useState("")
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedGameId("")
       setShowNewGame(false)
       setGameEmoji("⚔️")
+      setGameName("")
     }
   }, [isOpen])
 
@@ -53,14 +55,18 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
     })
   }
 
-  function handleCreateGame(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+  function handleCreateGame() {
+    if (!gameName.trim()) return
+    const formData = new FormData()
+    formData.set("gameName", gameName.trim())
+    formData.set("gameEmoji", gameEmoji)
     startGameTransition(async () => {
       const newId = await createGame(formData)
       router.refresh()
       setSelectedGameId(newId)
       setShowNewGame(false)
+      setGameName("")
+      setGameEmoji("⚔️")
     })
   }
 
@@ -81,7 +87,7 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
           </button>
         </div>
 
-        {/* Form */}
+        {/* Formulaire principal */}
         <form onSubmit={handleSubmit} className="space-y-4 p-6">
 
           <div>
@@ -100,7 +106,7 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
             </div>
           </div>
 
-          {/* Jeu + bouton nouveau jeu */}
+          {/* Jeu */}
           <div>
             <label className={labelClass}>// Jeu</label>
             <div className="flex gap-2">
@@ -129,29 +135,27 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
               </button>
             </div>
 
-            {/* Mini-formulaire nouveau jeu */}
+            {/* Nouveau jeu — div, pas un form imbriqué */}
             {showNewGame && (
-              <form
-                onSubmit={handleCreateGame}
-                className="mt-2 flex gap-2 border border-screen-border bg-screen-bg p-3"
-              >
-                <input type="hidden" name="gameEmoji" value={gameEmoji} />
+              <div className="mt-2 flex gap-2 border border-screen-border bg-screen-bg p-3">
                 <EmojiPicker value={gameEmoji} onChange={setGameEmoji} />
                 <input
-                  name="gameName"
                   type="text"
+                  value={gameName}
+                  onChange={(e) => setGameName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCreateGame() } }}
                   placeholder="Nom du jeu"
-                  required
                   className="min-w-0 flex-1 border border-screen-border bg-screen-surface px-3 py-1.5 text-sm text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none transition-colors"
                 />
                 <button
-                  type="submit"
-                  disabled={isGamePending}
+                  type="button"
+                  onClick={handleCreateGame}
+                  disabled={isGamePending || !gameName.trim()}
                   className="shrink-0 border border-screen-glow px-3 py-1.5 text-xs text-screen-glow hover:bg-screen-glow/10 disabled:opacity-40 transition-colors"
                 >
                   {isGamePending ? "..." : "OK"}
                 </button>
-              </form>
+              </div>
             )}
           </div>
 
