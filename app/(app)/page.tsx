@@ -56,10 +56,12 @@ export default async function CalendarPage({
             timeEnd:   availabilities.timeEnd,
             format:    availabilities.format,
             notes:     availabilities.notes,
-            army:      availabilities.army,
-            gameEmoji: games.emoji,
-            gameName:  games.name,
-            pseudo:    profiles.pseudo,
+            army:         availabilities.army,
+            gameEmoji:    games.emoji,
+            gameName:     games.name,
+            pseudo:       profiles.pseudo,
+            phone:        profiles.phone,
+            contactEmail: profiles.contactEmail,
           })
           .from(availabilities)
           .innerJoin(games, eq(availabilities.gameId, games.id))
