@@ -25,6 +25,27 @@ export async function createDispo(formData: FormData) {
   revalidatePath("/")
 }
 
+export async function updateDispo(id: string, formData: FormData) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) throw new Error("Non autorisé")
+
+  await db
+    .update(availabilities)
+    .set({
+      gameId:    formData.get("gameId") as string,
+      armyId:   (formData.get("armyId") as string)   || null,
+      date:      formData.get("date") as string,
+      timeStart: formData.get("timeStart") as string,
+      timeEnd:  (formData.get("timeEnd") as string)   || null,
+      format:   (formData.get("format") as string)    || null,
+      notes:    (formData.get("notes") as string)     || null,
+    })
+    .where(and(eq(availabilities.id, id), eq(availabilities.userId, session.user.id)))
+
+  revalidatePath("/")
+  revalidatePath("/profile")
+}
+
 export async function deleteDispo(id: string) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) throw new Error("Non autorisé")

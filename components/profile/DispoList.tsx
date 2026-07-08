@@ -1,8 +1,8 @@
 "use client"
 
-import { useTransition } from "react"
+import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
-import { deleteDispo } from "@/app/(app)/disponibilite/actions"
+import { deleteDispo, updateDispo } from "@/app/(app)/disponibilite/actions"
 
 type Dispo = {
   id: string
@@ -11,34 +11,56 @@ type Dispo = {
   timeEnd: string | null
   format: string | null
   notes: string | null
+  gameId: string
+  armyId: string | null
   gameEmoji: string
   gameName: string
   armyName: string | null
 }
 
-function DispoCard({ dispo }: { dispo: Dispo }) {
+type Game  = { id: string; name: string; emoji: string }
+type Army  = { id: string; gameId: string; name: string }
+
+const inputClass =
+  "w-full border border-screen-border bg-screen-surface px-3 py-1.5 text-sm text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none transition-colors"
+
+const labelClass = "block text-xs text-screen-muted tracking-widest uppercase mb-1"
+
+function DispoCard({ dispo, games, armies }: { dispo: Dispo; games: Game[]; armies: Army[] }) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [isDeleting, startDelete] = useTransition()
+  const [isSaving,   startSave]   = useTransition()
+  const [editing, setEditing] = useState(false)
+  const [editGameId, setEditGameId] = useState(dispo.gameId)
 
   const isPast = dispo.date < new Date().toISOString().split("T")[0]
+  const filteredArmies = armies.filter((a) => a.gameId === editGameId)
 
   const formattedDate = new Date(dispo.date + "T00:00:00").toLocaleDateString("fr-FR", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+    weekday: "short", day: "numeric", month: "short", year: "numeric",
   })
 
   function handleDelete() {
-    startTransition(async () => {
+    startDelete(async () => {
       await deleteDispo(dispo.id)
       router.refresh()
     })
   }
 
+  function handleSave(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startSave(async () => {
+      await updateDispo(dispo.id, formData)
+      router.refresh()
+      setEditing(false)
+    })
+  }
+
   return (
-    <div className={`border bg-screen-bg p-4 transition-opacity ${isPast ? "border-screen-border opacity-50" : "border-screen-border"}`}>
-      <div className="flex items-start justify-between gap-4">
+    <div className={`border border-screen-border bg-screen-bg transition-opacity ${isPast ? "opacity-50" : ""}`}>
+      {/* Header de la carte */}
+      <div className="flex items-start justify-between gap-4 p-4">
         <div className="space-y-0.5">
           <div className="text-sm text-screen-bright">
             {dispo.gameEmoji} {dispo.gameName}
@@ -49,27 +71,140 @@ function DispoCard({ dispo }: { dispo: Dispo }) {
             {dispo.timeEnd && <> → {dispo.timeEnd.slice(0, 5)}</>}
             {dispo.format && <> · {dispo.format}</>}
           </div>
-          {dispo.notes && (
+          {dispo.notes && !editing && (
             <div className="text-xs text-screen-base opacity-80">{dispo.notes}</div>
           )}
         </div>
-        <button
-          onClick={handleDelete}
-          disabled={isPending}
-          className="shrink-0 border border-screen-red/40 px-3 py-1 text-xs text-screen-red hover:bg-screen-red/10 disabled:opacity-40 transition-colors"
-        >
-          {isPending ? "..." : "Supprimer"}
-        </button>
+        <div className="flex shrink-0 gap-2">
+          <button
+            onClick={() => { setEditing((v) => !v); setEditGameId(dispo.gameId) }}
+            className={`border px-3 py-1 text-xs transition-colors ${
+              editing
+                ? "border-screen-glow text-screen-glow bg-screen-glow/10"
+                : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
+            }`}
+          >
+            Éditer
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="border border-screen-red/40 px-3 py-1 text-xs text-screen-red hover:bg-screen-red/10 disabled:opacity-40 transition-colors"
+          >
+            {isDeleting ? "..." : "Supprimer"}
+          </button>
+        </div>
       </div>
+
+      {/* Formulaire d'édition inline */}
+      {editing && (
+        <form onSubmit={handleSave} className="border-t border-screen-border p-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>// Date</label>
+              <input
+                name="date" type="date" required
+                defaultValue={dispo.date}
+                className={inputClass}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              <div>
+                <label className={labelClass}>// Début</label>
+                <input
+                  name="timeStart" type="time" required
+                  defaultValue={dispo.timeStart.slice(0, 5)}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>// Fin</label>
+                <input
+                  name="timeEnd" type="time"
+                  defaultValue={dispo.timeEnd?.slice(0, 5) ?? ""}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>// Jeu</label>
+              <select
+                name="gameId" required
+                value={editGameId}
+                onChange={(e) => setEditGameId(e.target.value)}
+                className={inputClass}
+              >
+                {games.map((g) => (
+                  <option key={g.id} value={g.id}>{g.emoji} {g.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>// Armée</label>
+              <select name="armyId" className={inputClass}>
+                <option value="">— Aucune</option>
+                {filteredArmies.map((a) => (
+                  <option key={a.id} value={a.id}
+                    selected={a.id === dispo.armyId}
+                  >{a.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className={labelClass}>// Format</label>
+            <input
+              name="format" type="text"
+              defaultValue={dispo.format ?? ""}
+              placeholder="ex: 2000pts matched play"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>// Notes</label>
+            <textarea
+              name="notes" rows={2}
+              defaultValue={dispo.notes ?? ""}
+              className={`${inputClass} resize-none`}
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="border border-screen-glow px-4 py-1.5 text-xs text-screen-glow hover:bg-screen-glow/10 disabled:opacity-40 transition-colors glow-text-sm"
+            >
+              {isSaving ? "Enregistrement..." : "▶ Enregistrer"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="border border-screen-border px-4 py-1.5 text-xs text-screen-muted hover:border-screen-muted transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   )
 }
 
-export function DispoList({ dispos }: { dispos: Dispo[] }) {
+export function DispoList({
+  dispos, games, armies,
+}: {
+  dispos: Dispo[]
+  games: Game[]
+  armies: Army[]
+}) {
   if (dispos.length === 0) {
-    return (
-      <p className="text-sm text-screen-muted">Aucune disponibilité enregistrée.</p>
-    )
+    return <p className="text-sm text-screen-muted">Aucune disponibilité enregistrée.</p>
   }
 
   const today = new Date().toISOString().split("T")[0]
@@ -81,13 +216,13 @@ export function DispoList({ dispos }: { dispos: Dispo[] }) {
       {upcoming.length > 0 && (
         <div className="space-y-2">
           <div className="text-xs text-screen-muted tracking-widest">// À venir</div>
-          {upcoming.map((d) => <DispoCard key={d.id} dispo={d} />)}
+          {upcoming.map((d) => <DispoCard key={d.id} dispo={d} games={games} armies={armies} />)}
         </div>
       )}
       {past.length > 0 && (
         <div className="space-y-2">
           <div className="text-xs text-screen-muted tracking-widest">// Passées</div>
-          {past.map((d) => <DispoCard key={d.id} dispo={d} />)}
+          {past.map((d) => <DispoCard key={d.id} dispo={d} games={games} armies={armies} />)}
         </div>
       )}
     </div>

@@ -11,27 +11,31 @@ export default async function ProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const userId = session!.user.id;
 
-  const [profile, userDispos] = await Promise.all([
+  const [profile, userDispos, allGames, allArmies] = await Promise.all([
     db.query.profiles.findFirst({
       where: eq(profiles.userId, userId),
     }),
     db
       .select({
-        id: availabilities.id,
-        date: availabilities.date,
+        id:        availabilities.id,
+        date:      availabilities.date,
         timeStart: availabilities.timeStart,
-        timeEnd: availabilities.timeEnd,
-        format: availabilities.format,
-        notes: availabilities.notes,
+        timeEnd:   availabilities.timeEnd,
+        format:    availabilities.format,
+        notes:     availabilities.notes,
+        gameId:    availabilities.gameId,
+        armyId:    availabilities.armyId,
         gameEmoji: games.emoji,
-        gameName: games.name,
-        armyName: armies.name,
+        gameName:  games.name,
+        armyName:  armies.name,
       })
       .from(availabilities)
       .innerJoin(games, eq(availabilities.gameId, games.id))
       .leftJoin(armies, eq(availabilities.armyId, armies.id))
       .where(eq(availabilities.userId, userId))
       .orderBy(desc(availabilities.date), availabilities.timeStart),
+    db.select().from(games),
+    db.select().from(armies),
   ]);
 
   return (
@@ -51,7 +55,7 @@ export default async function ProfilePage() {
         <div className="border-b border-screen-border pb-2 text-xs tracking-widest text-screen-muted uppercase">
           ▶ Mes disponibilités
         </div>
-        <DispoList dispos={userDispos} />
+        <DispoList dispos={userDispos} games={allGames} armies={allArmies} />
       </section>
 
       <section className="space-y-4">
