@@ -57,14 +57,9 @@ function ContactModal({ dispo, onClose }: { dispo: DayDispo; onClose: () => void
 
           {dispo.phone && (
             <div className="space-y-2">
+              <div className="text-xs text-screen-muted tracking-widest uppercase">// Téléphone</div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-screen-base">{dispo.phone}</span>
-                <a
-                  href={`tel:${dispo.phone}`}
-                  className="border border-screen-border px-2 py-0.5 text-xs text-screen-muted hover:border-screen-glow hover:text-screen-glow transition-colors"
-                >
-                  Appel
-                </a>
                 <a
                   href={whatsappUrl(dispo.phone)}
                   target="_blank"
