@@ -49,7 +49,7 @@ export default function LoginPage() {
             WGM.SYS
           </div>
           <div className="text-xs text-screen-muted tracking-widest uppercase">
-            Wargame Matchmaker — v0.2.1
+            Wargame Matchmaker — v{process.env.NEXT_PUBLIC_VERSION}
           </div>
         </div>
 
