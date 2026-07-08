@@ -79,16 +79,17 @@ Wargame Matchmaker permet aux passionnés de wargame (Warhammer 40K, Age of Sigm
 
 ### Base de données
 
-| Outil      | Usage                      |
-| ---------- | -------------------------- |
-| PostgreSQL | Base de données principale |
+| Outil                                  | Usage                              |
+| -------------------------------------- | ---------------------------------- |
+| [Neon](https://neon.tech/) (PostgreSQL) | Base de données serverless         |
 
 ### Infra & déploiement
 
-| Outil                         | Usage                      |
-| ----------------------------- | -------------------------- |
-| [Vercel](https://vercel.com/) | Hosting, CI/CD automatique |
-| GitHub Actions                | Lint, tests, checks PR     |
+| Outil                         | Usage                                       |
+| ----------------------------- | ------------------------------------------- |
+| [Vercel](https://vercel.com/) | Hosting, CI/CD automatique                  |
+| Neon ↔ Vercel integration     | `DATABASE_URL` injecté automatiquement      |
+| GitHub Actions                | Lint, tests, checks PR                      |
 
 ---
 
@@ -163,7 +164,7 @@ availabilities (
 ### Prérequis
 
 - Node.js 20+
-- Un compte [Supabase](https://supabase.com/) (ou Neon)
+- Un compte [Neon](https://neon.tech/) (PostgreSQL serverless)
 - Un compte [Resend](https://resend.com/)
 
 ### Installation
