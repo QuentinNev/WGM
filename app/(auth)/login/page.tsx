@@ -29,7 +29,7 @@ export default function LoginPage() {
     const { error } = await authClient.signIn.emailOtp({ email, otp })
     setLoading(false)
     if (error) { setError(error.message ?? "Code invalide."); return }
-    router.push("/")
+    window.location.href = "/"
   }
 
   return (
