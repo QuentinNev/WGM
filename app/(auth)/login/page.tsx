@@ -27,10 +27,9 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
     const result = await authClient.signIn.emailOtp({ email, otp })
-    console.log("signIn result:", JSON.stringify(result))
     setLoading(false)
     if (result.error) { setError(result.error.message ?? "Code invalide."); return }
-    window.location.href = "/"
+    setError("DEBUG: " + JSON.stringify(result.data))
   }
 
   return (
