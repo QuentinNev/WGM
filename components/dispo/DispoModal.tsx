@@ -33,6 +33,8 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
 
   if (!isOpen) return null
 
+  const today = new Date().toISOString().split("T")[0]
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -68,17 +70,17 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
 
           <div>
             <label className={labelClass}>// Date</label>
-            <input name="date" type="date" required className={inputClass} />
+            <input name="date" type="date" required defaultValue={today} className={inputClass} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>// Début</label>
-              <input name="timeStart" type="time" required className={inputClass} />
+              <input name="timeStart" type="time" required defaultValue="18:00" className={inputClass} />
             </div>
             <div>
               <label className={labelClass}>// Fin</label>
-              <input name="timeEnd" type="time" className={inputClass} />
+              <input name="timeEnd" type="time" defaultValue="21:00" className={inputClass} />
             </div>
           </div>
 
