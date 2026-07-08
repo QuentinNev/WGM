@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { CalendarDay } from "./CalendarDay"
+import { DayDetail } from "./DayDetail"
 import { DispoModal } from "@/components/dispo/DispoModal"
 
 const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
@@ -12,6 +13,17 @@ const MONTHS = [
 ]
 
 type GameCount = { emoji: string; count: number }
+type DayDispo = {
+  id: string
+  timeStart: string
+  timeEnd: string | null
+  format: string | null
+  notes: string | null
+  gameEmoji: string
+  gameName: string
+  armyName: string | null
+  pseudo: string | null
+}
 
 type Props = {
   year: number
@@ -20,18 +32,24 @@ type Props = {
   games: { id: string; name: string; emoji: string }[]
   armies: { id: string; gameId: string; name: string }[]
   selectedGameId?: string
+  selectedDay?: string
+  dayDispos: DayDispo[]
 }
 
-export function CalendarGrid({ year, month, byDate, games, armies, selectedGameId }: Props) {
+export function CalendarGrid({
+  year, month, byDate, games, armies,
+  selectedGameId, selectedDay, dayDispos,
+}: Props) {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
 
   const pad = (n: number) => String(n).padStart(2, "0")
 
-  function buildUrl(y: number, m: number, gameId?: string) {
+  function buildUrl(y: number, m: number, opts: { gameId?: string; day?: string } = {}) {
     const params = new URLSearchParams()
     params.set("month", `${y}-${pad(m)}`)
-    if (gameId) params.set("game", gameId)
+    if (opts.gameId) params.set("game", opts.gameId)
+    if (opts.day)    params.set("day", opts.day)
     return `/?${params}`
   }
 
@@ -40,7 +58,16 @@ export function CalendarGrid({ year, month, byDate, games, armies, selectedGameI
     let y = year
     if (m > 12) { m = 1; y++ }
     if (m < 1)  { m = 12; y-- }
-    router.push(buildUrl(y, m, selectedGameId))
+    router.push(buildUrl(y, m, { gameId: selectedGameId }))
+  }
+
+  function selectDay(dateStr: string) {
+    // Toggle : re-cliquer sur le même jour ferme le panneau
+    if (selectedDay === dateStr) {
+      router.push(buildUrl(year, month, { gameId: selectedGameId }))
+    } else {
+      router.push(buildUrl(year, month, { gameId: selectedGameId, day: dateStr }))
+    }
   }
 
   const firstDayOfWeek = new Date(year, month - 1, 1).getDay()
@@ -59,7 +86,7 @@ export function CalendarGrid({ year, month, byDate, games, armies, selectedGameI
     <>
       <div className="space-y-6">
 
-        {/* Header navigation */}
+        {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="font-display text-4xl text-screen-bright glow-text tracking-widest">
             {MONTHS[month - 1]} {year}
@@ -90,7 +117,7 @@ export function CalendarGrid({ year, month, byDate, games, armies, selectedGameI
           </button>
           <select
             value={selectedGameId ?? ""}
-            onChange={(e) => router.push(buildUrl(year, month, e.target.value || undefined))}
+            onChange={(e) => router.push(buildUrl(year, month, { gameId: e.target.value || undefined, day: selectedDay }))}
             className="border border-screen-border bg-screen-bg px-4 py-2 text-sm text-screen-base focus:border-screen-glow focus:outline-none transition-colors"
           >
             <option value="">// Tous les jeux</option>
@@ -118,12 +145,19 @@ export function CalendarGrid({ year, month, byDate, games, armies, selectedGameI
                   key={i}
                   day={day}
                   isToday={dateStr === todayStr}
+                  isSelected={dateStr === selectedDay}
                   counts={byDate[dateStr] ?? []}
+                  onClick={() => selectDay(dateStr)}
                 />
               )
             })}
           </div>
         </div>
+
+        {/* Détail du jour sélectionné */}
+        {selectedDay && (
+          <DayDetail date={selectedDay} dispos={dayDispos} />
+        )}
 
       </div>
 

@@ -1,6 +1,6 @@
 import { and, eq, gte, lte, sql } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { availabilities, armies, games } from "@/lib/db/schema"
+import { availabilities, armies, games, profiles } from "@/lib/db/schema"
 import { CalendarGrid } from "@/components/calendar/CalendarGrid"
 
 export default async function CalendarPage({
@@ -8,7 +8,7 @@ export default async function CalendarPage({
 }: {
   searchParams: Promise<{ month?: string; game?: string }>
 }) {
-  const { month: monthParam, game: gameId } = await searchParams
+  const { month: monthParam, game: gameId, day: selectedDay } = await searchParams
 
   const now = new Date()
   let year = now.getFullYear()
@@ -22,7 +22,7 @@ export default async function CalendarPage({
   const startDate = `${year}-${pad(month)}-01`
   const endDate = `${year}-${pad(month)}-${new Date(year, month, 0).getDate()}`
 
-  const [allGames, allArmies, rows] = await Promise.all([
+  const [allGames, allArmies, rows, dayDispos] = await Promise.all([
     db.select().from(games),
     db.select().from(armies),
     db
@@ -41,6 +41,26 @@ export default async function CalendarPage({
         )
       )
       .groupBy(availabilities.date, games.emoji),
+    selectedDay
+      ? db
+          .select({
+            id: availabilities.id,
+            timeStart: availabilities.timeStart,
+            timeEnd: availabilities.timeEnd,
+            format: availabilities.format,
+            notes: availabilities.notes,
+            gameEmoji: games.emoji,
+            gameName: games.name,
+            armyName: armies.name,
+            pseudo: profiles.pseudo,
+          })
+          .from(availabilities)
+          .innerJoin(games, eq(availabilities.gameId, games.id))
+          .leftJoin(armies, eq(availabilities.armyId, armies.id))
+          .leftJoin(profiles, eq(availabilities.userId, profiles.userId))
+          .where(eq(availabilities.date, selectedDay))
+          .orderBy(availabilities.timeStart)
+      : Promise.resolve([]),
   ])
 
   const byDate = rows.reduce<Record<string, { emoji: string; count: number }[]>>(
@@ -60,6 +80,8 @@ export default async function CalendarPage({
       games={allGames}
       armies={allArmies}
       selectedGameId={gameId}
+      selectedDay={selectedDay}
+      dayDispos={dayDispos}
     />
   )
 }
