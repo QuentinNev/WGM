@@ -16,17 +16,9 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-
-    const { error } = await authClient.emailOtp.sendVerificationOtp({
-      email,
-      type: "sign-in",
-    })
-
+    const { error } = await authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" })
     setLoading(false)
-    if (error) {
-      setError(error.message ?? "Une erreur est survenue.")
-      return
-    }
+    if (error) { setError(error.message ?? "Erreur transmetteur."); return }
     setStep("otp")
   }
 
@@ -34,80 +26,103 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-
     const { error } = await authClient.signIn.emailOtp({ email, otp })
-
     setLoading(false)
-    if (error) {
-      setError(error.message ?? "Code invalide.")
-      return
-    }
+    if (error) { setError(error.message ?? "Code invalide."); return }
     router.push("/")
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Wargame Matchmaker</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {step === "email"
-              ? "Entrez votre email pour recevoir un code de connexion."
-              : `Code envoyé à ${email}`}
-          </p>
+    <div className="flex min-h-screen items-center justify-center bg-screen-bg p-4 screen-flicker">
+      <div className="w-full max-w-sm">
+
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="font-display text-6xl text-screen-glow glow-text tracking-widest mb-1">
+            WGM.SYS
+          </div>
+          <div className="text-xs text-screen-muted tracking-widest uppercase">
+            Wargame Matchmaker — v0.1.0
+          </div>
         </div>
 
-        {step === "email" ? (
-          <form onSubmit={sendOtp} className="space-y-4">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="vous@exemple.com"
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-gray-900 py-2 text-white hover:bg-gray-700 disabled:opacity-50"
-            >
-              {loading ? "Envoi…" : "Recevoir un code"}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={verifyOtp} className="space-y-4">
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="Code à 6 chiffres"
-              maxLength={6}
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-center text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-gray-900"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-gray-900 py-2 text-white hover:bg-gray-700 disabled:opacity-50"
-            >
-              {loading ? "Vérification…" : "Se connecter"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep("email")}
-              className="w-full text-sm text-gray-500 hover:underline"
-            >
-              Changer d'adresse email
-            </button>
-          </form>
-        )}
+        {/* Panel */}
+        <div className="border border-screen-border bg-screen-surface p-6 glow-box">
 
-        {error && (
-          <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
-            {error}
-          </p>
-        )}
+          {/* Status bar */}
+          <div className="mb-6 border-b border-screen-border pb-3 text-xs text-screen-muted tracking-widest">
+            <span className="text-screen-amber">▶</span>{" "}
+            {step === "email"
+              ? "IDENTIFICATION COGITATOR — ENTRER ADRESSE"
+              : `TRANSMISSION OTP → ${email}`}
+          </div>
+
+          {step === "email" ? (
+            <form onSubmit={sendOtp} className="space-y-4">
+              <div>
+                <label className="mb-1 block text-xs text-screen-muted tracking-widest uppercase">
+                  // Adresse email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="servant@imperium.terra"
+                  required
+                  className="w-full border border-screen-border bg-screen-bg px-4 py-2 text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none focus:ring-1 focus:ring-screen-glow/30 transition-colors"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full border border-screen-glow bg-transparent py-2 text-sm text-screen-glow tracking-widest uppercase hover:bg-screen-glow/10 disabled:opacity-40 transition-colors glow-text-sm"
+              >
+                {loading ? "Transmission..." : "▶ Envoyer code"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={verifyOtp} className="space-y-4">
+              <div>
+                <label className="mb-1 block text-xs text-screen-muted tracking-widest uppercase">
+                  // Code OTP reçu
+                </label>
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="______"
+                  maxLength={6}
+                  required
+                  className="w-full border border-screen-border bg-screen-bg px-4 py-2 text-center font-display text-3xl tracking-[0.5em] text-screen-glow placeholder:text-screen-muted focus:border-screen-glow focus:outline-none focus:ring-1 focus:ring-screen-glow/30 transition-colors glow-text-sm"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full border border-screen-glow bg-transparent py-2 text-sm text-screen-glow tracking-widest uppercase hover:bg-screen-glow/10 disabled:opacity-40 transition-colors glow-text-sm"
+              >
+                {loading ? "Vérification..." : "▶ Accéder au système"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("email")}
+                className="w-full text-xs text-screen-muted hover:text-screen-base tracking-widest transition-colors"
+              >
+                ← Modifier l'adresse
+              </button>
+            </form>
+          )}
+
+          {error && (
+            <div className="mt-4 border border-screen-red/40 bg-screen-red/5 px-4 py-2 text-xs text-screen-red tracking-wide">
+              ⚠ {error}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 text-center text-xs text-screen-border tracking-widest">
+          TOUTES COMMUNICATIONS ENREGISTRÉES — INQUISITION OMNISSIAH
+        </div>
       </div>
     </div>
   )
