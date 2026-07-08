@@ -1,11 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 
 export default function LoginPage() {
   const router = useRouter()
+
+  useEffect(() => {
+    authClient.getSession().then(({ data }) => {
+      if (data?.session) window.location.href = "/"
+    })
+  }, [])
+
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
   const [step, setStep] = useState<"email" | "otp">("email")
@@ -42,7 +49,7 @@ export default function LoginPage() {
             WGM.SYS
           </div>
           <div className="text-xs text-screen-muted tracking-widest uppercase">
-            Wargame Matchmaker — v0.2.1
+            Wargame Matchmaker — v{process.env.NEXT_PUBLIC_VERSION}
           </div>
         </div>
 
