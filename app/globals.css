@@ -8,8 +8,8 @@
     color: #7dc97d;
   }
 
-  /* Scanlines */
-  body::after {
+  /* Scanlines — actives uniquement si la classe est présente */
+  body.scanlines::after {
     content: "";
     position: fixed;
     inset: 0;

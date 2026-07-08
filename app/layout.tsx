@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Share_Tech_Mono, VT323 } from "next/font/google"
+import { ScanlineProvider } from "@/components/ScanlineProvider"
 import "./globals.css"
 
 const mono = Share_Tech_Mono({
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className={`${mono.variable} ${display.variable} font-mono antialiased`}>
+        <ScanlineProvider />
         {children}
       </body>
     </html>
