@@ -6,7 +6,7 @@
 
 ## Présentation
 
-Wargame Matchmaker permet aux passionnés de wargame (Warhammer 40K, Age of Sigmar, Kings of War...) de publier leurs créneaux de disponibilité et de trouver facilement des adversaires pour une partie. Fini les posts dans des groupes Facebook qui se perdent : une interface calendrier claire, filtrée par jeu.
+Wargame Matchmaker permet aux passionnés de wargame (Warhammer 40K, Age of Sigmar...) de publier leurs créneaux de disponibilité et de trouver facilement des adversaires pour une partie.
 
 **Cas d'usage typique :**
 
@@ -42,7 +42,7 @@ Wargame Matchmaker permet aux passionnés de wargame (Warhammer 40K, Age of Sigm
 - Date
 - Créneau horaire (début / fin)
 - Jeu
-- Format (format libre ou liste prédéfinie par jeu)
+- Format
 - Armée
 - Champ texte libre pour les détails (niveau, lieu, format points...)
 
@@ -79,10 +79,9 @@ Wargame Matchmaker permet aux passionnés de wargame (Warhammer 40K, Age of Sigm
 
 ### Base de données
 
-| Outil                             | Usage                                 |
-| --------------------------------- | ------------------------------------- |
-| PostgreSQL                        | Base de données principale            |
-| [Supabase](https://supabase.com/) | Managed Postgres + Row Level Security |
+| Outil      | Usage                      |
+| ---------- | -------------------------- |
+| PostgreSQL | Base de données principale |
 
 ### Infra & déploiement
 
