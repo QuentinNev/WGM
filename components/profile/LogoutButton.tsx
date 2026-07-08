@@ -4,7 +4,8 @@ import { signOut } from "@/lib/auth-client"
 
 export function LogoutButton() {
   async function handleLogout() {
-    await signOut()
+    const result = await signOut()
+    console.log("signOut result:", result)
     window.location.href = "/login"
   }
 

@@ -1,17 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 
 export default function LoginPage() {
   const router = useRouter()
-
-  useEffect(() => {
-    authClient.getSession().then(({ data }) => {
-      if (data?.session) window.location.href = "/"
-    })
-  }, [])
 
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
