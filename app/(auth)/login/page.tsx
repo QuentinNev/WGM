@@ -26,10 +26,10 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const result = await authClient.signIn.emailOtp({ email, otp })
+    const { error } = await authClient.signIn.emailOtp({ email, otp })
     setLoading(false)
-    if (result.error) { setError(result.error.message ?? "Code invalide."); return }
-    setError("DEBUG: " + JSON.stringify(result.data))
+    if (error) { setError(error.message ?? "Code invalide."); return }
+    window.location.href = "/"
   }
 
   return (
