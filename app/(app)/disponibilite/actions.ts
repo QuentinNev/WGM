@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
+import { and, eq } from "drizzle-orm"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { availabilities } from "@/lib/db/schema"
@@ -22,4 +23,16 @@ export async function createDispo(formData: FormData) {
   })
 
   revalidatePath("/")
+}
+
+export async function deleteDispo(id: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) throw new Error("Non autorisé")
+
+  await db
+    .delete(availabilities)
+    .where(and(eq(availabilities.id, id), eq(availabilities.userId, session.user.id)))
+
+  revalidatePath("/")
+  revalidatePath("/profile")
 }
