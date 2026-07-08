@@ -23,6 +23,8 @@ type DayDispo = {
   gameEmoji: string
   gameName: string
   pseudo: string | null
+  phone: string | null
+  contactEmail: string | null
 }
 
 type Props = {
