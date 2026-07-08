@@ -13,13 +13,13 @@ export const auth = betterAuth({
   plugins: [
     emailOTP({
       async sendVerificationOTP({ email, otp }) {
-        await resend.emails.send({
-          from:
-            process.env.RESEND_FROM_EMAIL ?? "no-reply@wargame-matchmaker.com",
+        const { error } = await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
           to: email,
           subject: "Votre code de connexion - Wargame Matchmaker",
           text: `Votre code de connexion est : ${otp}\n\nCe code expire dans 5 minutes.`,
         });
+        if (error) throw new Error(`Resend error: ${error.message}`);
       },
     }),
   ],
