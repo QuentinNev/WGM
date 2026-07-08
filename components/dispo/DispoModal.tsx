@@ -3,9 +3,11 @@
 import { useTransition, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createDispo } from "@/app/(app)/disponibilite/actions"
+import { createGame } from "@/app/(app)/games/actions"
+import { EmojiPicker } from "@/components/ui/EmojiPicker"
 
-type Game  = { id: string; name: string; emoji: string }
-type Army  = { id: string; gameId: string; name: string }
+type Game = { id: string; name: string; emoji: string }
+type Army = { id: string; gameId: string; name: string }
 
 type Props = {
   isOpen: boolean
@@ -21,12 +23,18 @@ const labelClass = "block text-xs text-screen-muted tracking-widest uppercase mb
 
 export function DispoModal({ isOpen, onClose, games, armies }: Props) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [isPending,     startTransition]     = useTransition()
+  const [isGamePending, startGameTransition] = useTransition()
   const [selectedGameId, setSelectedGameId] = useState("")
+  const [showNewGame,    setShowNewGame]     = useState(false)
+  const [gameEmoji,      setGameEmoji]       = useState("⚔️")
 
-  // Reset game selection when modal closes
   useEffect(() => {
-    if (!isOpen) setSelectedGameId("")
+    if (!isOpen) {
+      setSelectedGameId("")
+      setShowNewGame(false)
+      setGameEmoji("⚔️")
+    }
   }, [isOpen])
 
   const filteredArmies = armies.filter((a) => a.gameId === selectedGameId)
@@ -45,6 +53,17 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
     })
   }
 
+  function handleCreateGame(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startGameTransition(async () => {
+      const newId = await createGame(formData)
+      router.refresh()
+      setSelectedGameId(newId)
+      setShowNewGame(false)
+    })
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-screen-bg/80 backdrop-blur-sm"
@@ -57,10 +76,7 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
           <span className="text-xs text-screen-muted tracking-widest uppercase">
             ▶ Nouvelle disponibilité
           </span>
-          <button
-            onClick={onClose}
-            className="text-screen-muted hover:text-screen-glow transition-colors"
-          >
+          <button onClick={onClose} className="text-screen-muted hover:text-screen-glow transition-colors">
             ✕
           </button>
         </div>
@@ -84,20 +100,59 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
             </div>
           </div>
 
+          {/* Jeu + bouton nouveau jeu */}
           <div>
             <label className={labelClass}>// Jeu</label>
-            <select
-              name="gameId"
-              required
-              value={selectedGameId}
-              onChange={(e) => setSelectedGameId(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">Sélectionner un jeu</option>
-              {games.map((g) => (
-                <option key={g.id} value={g.id}>{g.emoji} {g.name}</option>
-              ))}
-            </select>
+            <div className="flex gap-2">
+              <select
+                name="gameId"
+                required
+                value={selectedGameId}
+                onChange={(e) => setSelectedGameId(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">Sélectionner un jeu</option>
+                {games.map((g) => (
+                  <option key={g.id} value={g.id}>{g.emoji} {g.name}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setShowNewGame((v) => !v)}
+                className={`shrink-0 border px-3 py-2 text-sm transition-colors ${
+                  showNewGame
+                    ? "border-screen-glow text-screen-glow bg-screen-glow/10"
+                    : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
+                }`}
+              >
+                +
+              </button>
+            </div>
+
+            {/* Mini-formulaire nouveau jeu */}
+            {showNewGame && (
+              <form
+                onSubmit={handleCreateGame}
+                className="mt-2 flex gap-2 border border-screen-border bg-screen-bg p-3"
+              >
+                <input type="hidden" name="gameEmoji" value={gameEmoji} />
+                <EmojiPicker value={gameEmoji} onChange={setGameEmoji} />
+                <input
+                  name="gameName"
+                  type="text"
+                  placeholder="Nom du jeu"
+                  required
+                  className="min-w-0 flex-1 border border-screen-border bg-screen-surface px-3 py-1.5 text-sm text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={isGamePending}
+                  className="shrink-0 border border-screen-glow px-3 py-1.5 text-xs text-screen-glow hover:bg-screen-glow/10 disabled:opacity-40 transition-colors"
+                >
+                  {isGamePending ? "..." : "OK"}
+                </button>
+              </form>
+            )}
           </div>
 
           {filteredArmies.length > 0 && (
@@ -114,12 +169,7 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
 
           <div>
             <label className={labelClass}>// Format</label>
-            <input
-              name="format"
-              type="text"
-              placeholder="ex: 2000pts matched play"
-              className={inputClass}
-            />
+            <input name="format" type="text" placeholder="ex: 2000pts matched play" className={inputClass} />
           </div>
 
           <div>
