@@ -7,6 +7,10 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { availabilities } from "@/lib/db/schema";
 
+/**
+ * Creates a new availability entry in the database for the authenticated user.
+ * @param formData The form data containing the availability details
+ */
 export async function createDispo(formData: FormData) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error("Non autorisé");
@@ -25,6 +29,11 @@ export async function createDispo(formData: FormData) {
   revalidatePath("/");
 }
 
+/**
+ * Updates an existing availability entry in the database for the authenticated user.
+ * @param id The ID of the availability entry to update
+ * @param formData The form data containing the updated availability details
+ */
 export async function updateDispo(id: string, formData: FormData) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error("Non autorisé");
@@ -51,6 +60,10 @@ export async function updateDispo(id: string, formData: FormData) {
   revalidatePath("/profile");
 }
 
+/**
+ * Deletes an existing availability entry in the database for the authenticated user.
+ * @param id The ID of the availability entry to delete
+ */
 export async function deleteDispo(id: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error("Non autorisé");
