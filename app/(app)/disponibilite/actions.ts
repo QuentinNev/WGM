@@ -12,14 +12,14 @@ export async function createDispo(formData: FormData) {
   if (!session) throw new Error("Non autorisé")
 
   await db.insert(availabilities).values({
-    userId: session.user.id,
-    gameId: formData.get("gameId") as string,
-    armyId: (formData.get("armyId") as string) || null,
-    date: formData.get("date") as string,
+    userId:    session.user.id,
+    gameId:    formData.get("gameId") as string,
+    army:     (formData.get("army") as string) || null,
+    date:      formData.get("date") as string,
     timeStart: formData.get("timeStart") as string,
-    timeEnd: (formData.get("timeEnd") as string) || null,
-    format: (formData.get("format") as string) || null,
-    notes: (formData.get("notes") as string) || null,
+    timeEnd:  (formData.get("timeEnd") as string) || null,
+    format:   (formData.get("format") as string) || null,
+    notes:    (formData.get("notes") as string) || null,
   })
 
   revalidatePath("/")
@@ -33,12 +33,12 @@ export async function updateDispo(id: string, formData: FormData) {
     .update(availabilities)
     .set({
       gameId:    formData.get("gameId") as string,
-      armyId:   (formData.get("armyId") as string)   || null,
+      army:     (formData.get("army") as string) || null,
       date:      formData.get("date") as string,
       timeStart: formData.get("timeStart") as string,
-      timeEnd:  (formData.get("timeEnd") as string)   || null,
-      format:   (formData.get("format") as string)    || null,
-      notes:    (formData.get("notes") as string)     || null,
+      timeEnd:  (formData.get("timeEnd") as string) || null,
+      format:   (formData.get("format") as string) || null,
+      notes:    (formData.get("notes") as string) || null,
     })
     .where(and(eq(availabilities.id, id), eq(availabilities.userId, session.user.id)))
 

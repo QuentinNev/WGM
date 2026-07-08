@@ -15,6 +15,13 @@
       "when": 1783503804495,
       "tag": "0001_open_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751980800000,
+      "tag": "0002_drop_armies",
+      "breakpoints": true
     }
   ]
 }

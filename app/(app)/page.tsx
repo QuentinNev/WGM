@@ -1,7 +1,7 @@
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { headers } from "next/headers"
 import { db } from "@/lib/db"
-import { availabilities, armies, games, profiles } from "@/lib/db/schema"
+import { availabilities, games, profiles } from "@/lib/db/schema"
 import { auth } from "@/lib/auth"
 import { CalendarGrid } from "@/components/calendar/CalendarGrid"
 
@@ -29,12 +29,11 @@ export default async function CalendarPage({
   const startDate = `${year}-${pad(month)}-01`
   const endDate = `${year}-${pad(month)}-${new Date(year, month, 0).getDate()}`
 
-  const [allGames, allArmies, rows, dayDispos] = await Promise.all([
+  const [allGames, rows, dayDispos] = await Promise.all([
     db.select().from(games),
-    db.select().from(armies),
     db
       .select({
-        date: availabilities.date,
+        date:  availabilities.date,
         emoji: games.emoji,
         count: sql<number>`cast(count(*) as int)`,
       })
@@ -44,27 +43,26 @@ export default async function CalendarPage({
         and(
           gte(availabilities.date, startDate),
           lte(availabilities.date, endDate),
-          gameId ? eq(availabilities.gameId, gameId) : undefined,
-          !showOwn ? ne(availabilities.userId, userId) : undefined,
+          gameId   ? eq(availabilities.gameId, gameId) : undefined,
+          !showOwn ? ne(availabilities.userId, userId)  : undefined,
         )
       )
       .groupBy(availabilities.date, games.emoji),
     selectedDay
       ? db
           .select({
-            id: availabilities.id,
+            id:        availabilities.id,
             timeStart: availabilities.timeStart,
-            timeEnd: availabilities.timeEnd,
-            format: availabilities.format,
-            notes: availabilities.notes,
+            timeEnd:   availabilities.timeEnd,
+            format:    availabilities.format,
+            notes:     availabilities.notes,
+            army:      availabilities.army,
             gameEmoji: games.emoji,
-            gameName: games.name,
-            armyName: armies.name,
-            pseudo: profiles.pseudo,
+            gameName:  games.name,
+            pseudo:    profiles.pseudo,
           })
           .from(availabilities)
           .innerJoin(games, eq(availabilities.gameId, games.id))
-          .leftJoin(armies, eq(availabilities.armyId, armies.id))
           .leftJoin(profiles, eq(availabilities.userId, profiles.userId))
           .where(
             and(
@@ -91,7 +89,6 @@ export default async function CalendarPage({
       month={month}
       byDate={byDate}
       games={allGames}
-      armies={allArmies}
       selectedGameId={gameId}
       selectedDay={selectedDay}
       dayDispos={dayDispos}

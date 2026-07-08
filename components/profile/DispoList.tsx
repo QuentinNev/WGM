@@ -12,29 +12,25 @@ type Dispo = {
   format: string | null
   notes: string | null
   gameId: string
-  armyId: string | null
+  army: string | null
   gameEmoji: string
   gameName: string
-  armyName: string | null
 }
 
-type Game  = { id: string; name: string; emoji: string }
-type Army  = { id: string; gameId: string; name: string }
+type Game = { id: string; name: string; emoji: string }
 
 const inputClass =
   "w-full border border-screen-border bg-screen-surface px-3 py-1.5 text-sm text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none transition-colors"
 
 const labelClass = "block text-xs text-screen-muted tracking-widest uppercase mb-1"
 
-function DispoCard({ dispo, games, armies }: { dispo: Dispo; games: Game[]; armies: Army[] }) {
+function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
   const router = useRouter()
   const [isDeleting, startDelete] = useTransition()
-  const [isSaving,   startSave]   = useTransition()
+  const [isSaving, startSave] = useTransition()
   const [editing, setEditing] = useState(false)
-  const [editGameId, setEditGameId] = useState(dispo.gameId)
 
   const isPast = dispo.date < new Date().toISOString().split("T")[0]
-  const filteredArmies = armies.filter((a) => a.gameId === editGameId)
 
   const formattedDate = new Date(dispo.date + "T00:00:00").toLocaleDateString("fr-FR", {
     weekday: "short", day: "numeric", month: "short", year: "numeric",
@@ -59,12 +55,11 @@ function DispoCard({ dispo, games, armies }: { dispo: Dispo; games: Game[]; armi
 
   return (
     <div className={`border border-screen-border bg-screen-bg transition-opacity ${isPast ? "opacity-50" : ""}`}>
-      {/* Header de la carte */}
       <div className="flex items-start justify-between gap-4 p-4">
         <div className="space-y-0.5">
           <div className="text-sm text-screen-bright">
             {dispo.gameEmoji} {dispo.gameName}
-            {dispo.armyName && <span className="text-screen-muted"> — {dispo.armyName}</span>}
+            {dispo.army && <span className="text-screen-muted"> — {dispo.army}</span>}
           </div>
           <div className="text-xs text-screen-muted">
             {formattedDate} · {dispo.timeStart.slice(0, 5)}
@@ -77,12 +72,11 @@ function DispoCard({ dispo, games, armies }: { dispo: Dispo; games: Game[]; armi
         </div>
         <div className="flex shrink-0 gap-2">
           <button
-            onClick={() => { setEditing((v) => !v); setEditGameId(dispo.gameId) }}
-            className={`border px-3 py-1 text-xs transition-colors ${
-              editing
+            onClick={() => setEditing((v) => !v)}
+            className={`border px-3 py-1 text-xs transition-colors ${editing
                 ? "border-screen-glow text-screen-glow bg-screen-glow/10"
                 : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
-            }`}
+              }`}
           >
             Éditer
           </button>
@@ -96,7 +90,6 @@ function DispoCard({ dispo, games, armies }: { dispo: Dispo; games: Game[]; armi
         </div>
       </div>
 
-      {/* Formulaire d'édition inline */}
       {editing && (
         <form onSubmit={handleSave} className="border-t border-screen-border p-4 space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -128,31 +121,23 @@ function DispoCard({ dispo, games, armies }: { dispo: Dispo; games: Game[]; armi
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>// Jeu</label>
-              <select
-                name="gameId" required
-                value={editGameId}
-                onChange={(e) => setEditGameId(e.target.value)}
-                className={inputClass}
-              >
-                {games.map((g) => (
-                  <option key={g.id} value={g.id}>{g.emoji} {g.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>// Armée</label>
-              <select name="armyId" className={inputClass}>
-                <option value="">— Aucune</option>
-                {filteredArmies.map((a) => (
-                  <option key={a.id} value={a.id}
-                    selected={a.id === dispo.armyId}
-                  >{a.name}</option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label className={labelClass}>// Jeu</label>
+            <select name="gameId" required defaultValue={dispo.gameId} className={inputClass}>
+              {games.map((g) => (
+                <option key={g.id} value={g.id}>{g.emoji} {g.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClass}>// Armée</label>
+            <input
+              name="army" type="text"
+              defaultValue={dispo.army ?? ""}
+              placeholder="ex: Space Marines, Stormcast..."
+              className={inputClass}
+            />
           </div>
 
           <div>
@@ -196,33 +181,27 @@ function DispoCard({ dispo, games, armies }: { dispo: Dispo; games: Game[]; armi
   )
 }
 
-export function DispoList({
-  dispos, games, armies,
-}: {
-  dispos: Dispo[]
-  games: Game[]
-  armies: Army[]
-}) {
+export function DispoList({ dispos, games }: { dispos: Dispo[]; games: Game[] }) {
   if (dispos.length === 0) {
     return <p className="text-sm text-screen-muted">Aucune disponibilité enregistrée.</p>
   }
 
   const today = new Date().toISOString().split("T")[0]
   const upcoming = dispos.filter((d) => d.date >= today)
-  const past     = dispos.filter((d) => d.date <  today)
+  const past = dispos.filter((d) => d.date < today)
 
   return (
     <div className="space-y-6">
       {upcoming.length > 0 && (
         <div className="space-y-2">
           <div className="text-xs text-screen-muted tracking-widest">// À venir</div>
-          {upcoming.map((d) => <DispoCard key={d.id} dispo={d} games={games} armies={armies} />)}
+          {upcoming.map((d) => <DispoCard key={d.id} dispo={d} games={games} />)}
         </div>
       )}
       {past.length > 0 && (
         <div className="space-y-2">
           <div className="text-xs text-screen-muted tracking-widest">// Passées</div>
-          {past.map((d) => <DispoCard key={d.id} dispo={d} games={games} armies={armies} />)}
+          {past.map((d) => <DispoCard key={d.id} dispo={d} games={games} />)}
         </div>
       )}
     </div>

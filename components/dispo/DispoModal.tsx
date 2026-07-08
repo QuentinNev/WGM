@@ -7,13 +7,11 @@ import { createGame } from "@/app/(app)/games/actions"
 import { EmojiPicker } from "@/components/ui/EmojiPicker"
 
 type Game = { id: string; name: string; emoji: string }
-type Army = { id: string; gameId: string; name: string }
 
 type Props = {
   isOpen: boolean
   onClose: () => void
   games: Game[]
-  armies: Army[]
 }
 
 const inputClass =
@@ -21,14 +19,14 @@ const inputClass =
 
 const labelClass = "block text-xs text-screen-muted tracking-widest uppercase mb-1"
 
-export function DispoModal({ isOpen, onClose, games, armies }: Props) {
+export function DispoModal({ isOpen, onClose, games }: Props) {
   const router = useRouter()
-  const [isPending,     startTransition]     = useTransition()
+  const [isPending, startTransition] = useTransition()
   const [isGamePending, startGameTransition] = useTransition()
   const [selectedGameId, setSelectedGameId] = useState("")
-  const [showNewGame,    setShowNewGame]     = useState(false)
-  const [gameEmoji,      setGameEmoji]       = useState("⚔️")
-  const [gameName,       setGameName]        = useState("")
+  const [showNewGame, setShowNewGame] = useState(false)
+  const [gameEmoji, setGameEmoji] = useState("⚔️")
+  const [gameName, setGameName] = useState("")
 
   useEffect(() => {
     if (!isOpen) {
@@ -38,8 +36,6 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
       setGameName("")
     }
   }, [isOpen])
-
-  const filteredArmies = armies.filter((a) => a.gameId === selectedGameId)
 
   if (!isOpen) return null
 
@@ -77,7 +73,6 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
     >
       <div className="mx-4 w-full max-w-md border border-screen-border bg-screen-surface glow-box">
 
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-screen-border px-6 py-4">
           <span className="text-xs text-screen-muted tracking-widest uppercase">
             ▶ Nouvelle disponibilité
@@ -87,7 +82,6 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
           </button>
         </div>
 
-        {/* Formulaire principal */}
         <form onSubmit={handleSubmit} className="space-y-4 p-6">
 
           <div>
@@ -106,7 +100,6 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
             </div>
           </div>
 
-          {/* Jeu */}
           <div>
             <label className={labelClass}>// Jeu</label>
             <div className="flex gap-2">
@@ -125,17 +118,15 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
               <button
                 type="button"
                 onClick={() => setShowNewGame((v) => !v)}
-                className={`shrink-0 border px-3 py-2 text-sm transition-colors ${
-                  showNewGame
+                className={`shrink-0 border px-3 py-2 text-sm transition-colors ${showNewGame
                     ? "border-screen-glow text-screen-glow bg-screen-glow/10"
                     : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
-                }`}
+                  }`}
               >
                 +
               </button>
             </div>
 
-            {/* Nouveau jeu — div, pas un form imbriqué */}
             {showNewGame && (
               <div className="mt-2 flex gap-2 border border-screen-border bg-screen-bg p-3">
                 <EmojiPicker value={gameEmoji} onChange={setGameEmoji} />
@@ -159,17 +150,15 @@ export function DispoModal({ isOpen, onClose, games, armies }: Props) {
             )}
           </div>
 
-          {filteredArmies.length > 0 && (
-            <div>
-              <label className={labelClass}>// Armée</label>
-              <select name="armyId" className={inputClass}>
-                <option value="">— Aucune</option>
-                {filteredArmies.map((a) => (
-                  <option key={a.id} value={a.id}>{a.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div>
+            <label className={labelClass}>// Armée</label>
+            <input
+              name="army"
+              type="text"
+              placeholder="ex: Space Marines, Stormcast..."
+              className={inputClass}
+            />
+          </div>
 
           <div>
             <label className={labelClass}>// Format</label>

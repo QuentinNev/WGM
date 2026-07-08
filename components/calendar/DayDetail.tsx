@@ -4,9 +4,9 @@ type DayDispo = {
   timeEnd: string | null
   format: string | null
   notes: string | null
+  army: string | null
   gameEmoji: string
   gameName: string
-  armyName: string | null
   pseudo: string | null
 }
 
@@ -42,8 +42,8 @@ export function DayDetail({ date, dispos }: Props) {
                   </div>
                   <div className="text-sm text-screen-base">
                     {d.gameEmoji} {d.gameName}
-                    {d.armyName && (
-                      <span className="text-screen-muted"> — {d.armyName}</span>
+                    {d.army && (
+                      <span className="text-screen-muted"> — {d.army}</span>
                     )}
                   </div>
                   {d.format && (

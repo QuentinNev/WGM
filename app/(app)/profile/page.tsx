@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { desc, eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { availabilities, armies, games, profiles } from "@/lib/db/schema";
+import { availabilities, games, profiles } from "@/lib/db/schema";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { DispoList } from "@/components/profile/DispoList";
 import { ScanlineToggle } from "@/components/options/ScanlineToggle";
@@ -11,7 +11,7 @@ export default async function ProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const userId = session!.user.id;
 
-  const [profile, userDispos, allGames, allArmies] = await Promise.all([
+  const [profile, userDispos, allGames] = await Promise.all([
     db.query.profiles.findFirst({
       where: eq(profiles.userId, userId),
     }),
@@ -24,18 +24,15 @@ export default async function ProfilePage() {
         format:    availabilities.format,
         notes:     availabilities.notes,
         gameId:    availabilities.gameId,
-        armyId:    availabilities.armyId,
+        army:      availabilities.army,
         gameEmoji: games.emoji,
         gameName:  games.name,
-        armyName:  armies.name,
       })
       .from(availabilities)
       .innerJoin(games, eq(availabilities.gameId, games.id))
-      .leftJoin(armies, eq(availabilities.armyId, armies.id))
       .where(eq(availabilities.userId, userId))
       .orderBy(desc(availabilities.date), availabilities.timeStart),
     db.select().from(games),
-    db.select().from(armies),
   ]);
 
   return (
@@ -55,7 +52,7 @@ export default async function ProfilePage() {
         <div className="border-b border-screen-border pb-2 text-xs tracking-widest text-screen-muted uppercase">
           ▶ Mes disponibilités
         </div>
-        <DispoList dispos={userDispos} games={allGames} armies={allArmies} />
+        <DispoList dispos={userDispos} games={allGames} />
       </section>
 
       <section className="space-y-4">

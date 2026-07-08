@@ -19,9 +19,9 @@ type DayDispo = {
   timeEnd: string | null
   format: string | null
   notes: string | null
+  army: string | null
   gameEmoji: string
   gameName: string
-  armyName: string | null
   pseudo: string | null
 }
 
@@ -30,7 +30,6 @@ type Props = {
   month: number
   byDate: Record<string, GameCount[]>
   games: { id: string; name: string; emoji: string }[]
-  armies: { id: string; gameId: string; name: string }[]
   selectedGameId?: string
   selectedDay?: string
   dayDispos: DayDispo[]
@@ -38,7 +37,7 @@ type Props = {
 }
 
 export function CalendarGrid({
-  year, month, byDate, games, armies,
+  year, month, byDate, games,
   selectedGameId, selectedDay, dayDispos, showOwn,
 }: Props) {
   const router = useRouter()
@@ -180,7 +179,6 @@ export function CalendarGrid({
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         games={games}
-        armies={armies}
       />
     </>
   )
