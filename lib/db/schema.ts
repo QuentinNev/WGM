@@ -69,18 +69,11 @@ export const games = pgTable("games", {
   slug: text("slug").notNull().unique(),
 })
 
-export const armies = pgTable("armies", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  gameId: uuid("game_id")
-    .notNull()
-    .references(() => games.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-})
-
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")
     .notNull()
+    .unique()
     .references(() => user.id, { onDelete: "cascade" }),
   pseudo: text("pseudo").notNull(),
   phone: text("phone"),
@@ -97,15 +90,6 @@ export const profileGames = pgTable("profile_games", {
     .references(() => games.id, { onDelete: "cascade" }),
 })
 
-export const profileArmies = pgTable("profile_armies", {
-  profileId: uuid("profile_id")
-    .notNull()
-    .references(() => profiles.id, { onDelete: "cascade" }),
-  armyId: uuid("army_id")
-    .notNull()
-    .references(() => armies.id, { onDelete: "cascade" }),
-})
-
 export const availabilities = pgTable("availabilities", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")
@@ -114,7 +98,7 @@ export const availabilities = pgTable("availabilities", {
   gameId: uuid("game_id")
     .notNull()
     .references(() => games.id),
-  armyId: uuid("army_id").references(() => armies.id),
+  army: text("army"),
   date: date("date").notNull(),
   timeStart: time("time_start").notNull(),
   timeEnd: time("time_end"),

@@ -1,6 +1,6 @@
 {
   "name": "wgm",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,6 +12,8 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@neondatabase/serverless": "^0.10.0",
     "better-auth": "^1.6.20",
     "dotenv": "^17.4.2",
