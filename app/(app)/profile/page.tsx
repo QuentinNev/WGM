@@ -6,6 +6,7 @@ import { availabilities, games, profiles } from "@/lib/db/schema";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { DispoList } from "@/components/profile/DispoList";
 import { ScanlineToggle } from "@/components/options/ScanlineToggle";
+import { LogoutButton } from "@/components/profile/LogoutButton";
 
 export default async function ProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -60,6 +61,13 @@ export default async function ProfilePage() {
           ▶ Options affichage
         </div>
         <ScanlineToggle />
+      </section>
+
+      <section className="space-y-4">
+        <div className="border-b border-screen-border pb-2 text-xs tracking-widest text-screen-muted uppercase">
+          ▶ Session
+        </div>
+        <LogoutButton />
       </section>
     </div>
   );
