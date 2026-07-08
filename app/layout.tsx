@@ -17,7 +17,7 @@ const display = VT323({
 
 export const metadata: Metadata = {
   title: "Wargame Matchmaker",
-  description: "Trouvez des adversaires pour vos parties de wargame",
+  description: "Trouvez des adversaires pour vos parties",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
