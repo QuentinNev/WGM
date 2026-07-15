@@ -16,7 +16,7 @@ const display = VT323({
 })
 
 export const metadata: Metadata = {
-  title: "Where Games Meet",
+  title: "Where Gamers Meet",
   description: "Trouvez des adversaires pour vos parties sur vos jeux préférés.",
 }
 
