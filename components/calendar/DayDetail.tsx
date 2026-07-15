@@ -6,6 +6,7 @@ import type { DayDispo } from "@/lib/types"
 type Props = {
   date: string
   dispos: DayDispo[]
+  openOfferModal: (availabilityId: string) => void
 }
 
 function whatsappUrl(phone: string) {
@@ -79,7 +80,7 @@ function ContactModal({ dispo, onClose }: { dispo: DayDispo; onClose: () => void
   )
 }
 
-export function DayDetail({ date, dispos }: Props) {
+export function DayDetail({ date, dispos, openOfferModal }: Props) {
   const [contactDispo, setContactDispo] = useState<DayDispo | null>(null)
 
   const formatted = new Date(date + "T00:00:00").toLocaleDateString("fr-FR", {
@@ -132,7 +133,7 @@ export function DayDetail({ date, dispos }: Props) {
                   ▶ Contact
                 </button>*/}
                 <button
-                  onClick={() => setContactDispo(d)}
+                  onClick={() => openOfferModal(d.id)}
                   className="mt-3 ml-2 border border-screen-glow px-3 py-1 text-xs text-screen-glow hover:bg-screen-glow/10 transition-colors"
                 >
                   ▶ Envoyer une offre

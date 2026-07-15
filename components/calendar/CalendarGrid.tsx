@@ -30,7 +30,9 @@ export function CalendarGrid({
   selectedGameId, selectedDay, dayDispos, showOwn,
 }: Props) {
   const router = useRouter()
-  const [modalOpen, setModalOpen] = useState(false)
+  const [dispoModalOpen, setDispoModalOpen] = useState(false)
+  const [offerModalOpen, setOfferModalOpen] = useState(false)
+  const [offerAvailabilityId, setOfferAvailabilityId] = useState<string | null>(null)
 
   const pad = (n: number) => String(n).padStart(2, "0")
 
@@ -103,7 +105,7 @@ export function CalendarGrid({
         {/* Actions + filtres */}
         <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={() => setModalOpen(true)}
+            onClick={() => setDispoModalOpen(true)}
             className="border border-screen-glow px-4 py-2 text-sm text-screen-glow tracking-widest uppercase hover:bg-screen-glow/10 transition-colors glow-text-sm"
           >
             + Dispo
@@ -158,21 +160,24 @@ export function CalendarGrid({
 
         {/* Détail du jour sélectionné */}
         {selectedDay && (
-          <DayDetail date={selectedDay} dispos={dayDispos} />
+          <DayDetail date={selectedDay} dispos={dayDispos} openOfferModal={(availabilityId) => {
+            setOfferAvailabilityId(availabilityId)
+            setOfferModalOpen(true)
+          }} />
         )}
 
       </div>
 
       <DispoModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        isOpen={dispoModalOpen}
+        onClose={() => setDispoModalOpen(false)}
         games={games}
       />
 
       <OfferModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        games={games}
+        isOpen={offerModalOpen}
+        onClose={() => setOfferModalOpen(false)}
+        availabilityId={offerAvailabilityId ?? "0"} // You might want to pass a real availabilityId here
       />
     </>
   )
