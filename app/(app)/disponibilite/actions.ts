@@ -68,6 +68,7 @@ export async function deleteDispo(id: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error("Non autorisé");
 
+  // Delete the availability entry from the database if user id matches the authenticated user's id
   await db
     .delete(availabilities)
     .where(
