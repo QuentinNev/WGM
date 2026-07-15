@@ -1,7 +1,7 @@
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { headers } from "next/headers"
 import { db } from "@/lib/db"
-import { availabilities, games, profiles } from "@/lib/db/schema"
+import { availabilities, games, profiles, availStatusEnum } from "@/lib/db/schema"
 import { auth } from "@/lib/auth"
 import { CalendarGrid } from "@/components/calendar/CalendarGrid"
 
@@ -33,7 +33,7 @@ export default async function CalendarPage({
     db.select().from(games),
     db
       .select({
-        date:  availabilities.date,
+        date: availabilities.date,
         emoji: games.emoji,
         count: sql<number>`cast(count(*) as int)`,
       })
@@ -43,36 +43,37 @@ export default async function CalendarPage({
         and(
           gte(availabilities.date, startDate),
           lte(availabilities.date, endDate),
-          gameId   ? eq(availabilities.gameId, gameId) : undefined,
-          !showOwn ? ne(availabilities.userId, userId)  : undefined,
+          gameId ? eq(availabilities.gameId, gameId) : undefined,
+          !showOwn ? ne(availabilities.userId, userId) : undefined,
+          eq(availabilities.status, availStatusEnum.enumValues[0])
         )
       )
       .groupBy(availabilities.date, games.emoji),
     selectedDay
       ? db
-          .select({
-            id:        availabilities.id,
-            timeStart: availabilities.timeStart,
-            timeEnd:   availabilities.timeEnd,
-            format:    availabilities.format,
-            notes:     availabilities.notes,
-            army:         availabilities.army,
-            gameEmoji:    games.emoji,
-            gameName:     games.name,
-            pseudo:       profiles.pseudo,
-            phone:        profiles.phone,
-            contactEmail: profiles.contactEmail,
-          })
-          .from(availabilities)
-          .innerJoin(games, eq(availabilities.gameId, games.id))
-          .leftJoin(profiles, eq(availabilities.userId, profiles.userId))
-          .where(
-            and(
-              eq(availabilities.date, selectedDay),
-              !showOwn ? ne(availabilities.userId, userId) : undefined,
-            )
+        .select({
+          id: availabilities.id,
+          timeStart: availabilities.timeStart,
+          timeEnd: availabilities.timeEnd,
+          format: availabilities.format,
+          notes: availabilities.notes,
+          army: availabilities.army,
+          gameEmoji: games.emoji,
+          gameName: games.name,
+          pseudo: profiles.pseudo,
+          phone: profiles.phone,
+          contactEmail: profiles.contactEmail,
+        })
+        .from(availabilities)
+        .innerJoin(games, eq(availabilities.gameId, games.id))
+        .leftJoin(profiles, eq(availabilities.userId, profiles.userId))
+        .where(
+          and(
+            eq(availabilities.date, selectedDay),
+            !showOwn ? ne(availabilities.userId, userId) : undefined,
           )
-          .orderBy(availabilities.timeStart)
+        )
+        .orderBy(availabilities.timeStart)
       : Promise.resolve([]),
   ])
 
