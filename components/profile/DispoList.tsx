@@ -168,7 +168,9 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
 }
 
 function OfferCard({ offer }: { offer: Offer; }) {
-
+  return <div>
+    
+  </div>
 }
 
 export function DispoList({ dispos, games }: { dispos: Dispo[]; games: Game[] }) {
