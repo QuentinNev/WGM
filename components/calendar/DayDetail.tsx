@@ -1,20 +1,7 @@
 "use client"
 
 import { useState } from "react"
-
-type DayDispo = {
-  id: string
-  timeStart: string
-  timeEnd: string | null
-  format: string | null
-  notes: string | null
-  army: string | null
-  gameEmoji: string
-  gameName: string
-  pseudo: string | null
-  phone: string | null
-  contactEmail: string | null
-}
+import type { DayDispo } from "@/lib/types"
 
 type Props = {
   date: string
@@ -138,11 +125,17 @@ export function DayDetail({ date, dispos }: Props) {
                   <p className="mt-2 text-xs text-screen-base opacity-80">{d.notes}</p>
                 )}
 
-                <button
+                {/*<button
                   onClick={() => setContactDispo(d)}
                   className="mt-3 border border-screen-amber px-3 py-1 text-xs text-screen-amber hover:bg-screen-amber/10 transition-colors"
                 >
                   ▶ Contact
+                </button>*/}
+                <button
+                  onClick={() => setContactDispo(d)}
+                  className="mt-3 ml-2 border border-screen-glow px-3 py-1 text-xs text-screen-glow hover:bg-screen-glow/10 transition-colors"
+                >
+                  ▶ Envoyer une offre
                 </button>
               </div>
             ))}

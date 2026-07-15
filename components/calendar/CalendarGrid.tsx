@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { CalendarDay } from "./CalendarDay"
 import { DayDetail } from "./DayDetail"
 import { DispoModal } from "@/components/dispo/DispoModal"
+import { OfferModal } from "@/components/calendar/OfferModal"
+import type { Game, GameCount, DayDispo } from "@/lib/types"
 
 const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
 const MONTHS = [
@@ -12,26 +14,11 @@ const MONTHS = [
   "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
 ]
 
-type GameCount = { emoji: string; count: number }
-type DayDispo = {
-  id: string
-  timeStart: string
-  timeEnd: string | null
-  format: string | null
-  notes: string | null
-  army: string | null
-  gameEmoji: string
-  gameName: string
-  pseudo: string | null
-  phone: string | null
-  contactEmail: string | null
-}
-
 type Props = {
   year: number
   month: number
   byDate: Record<string, GameCount[]>
-  games: { id: string; name: string; emoji: string }[]
+  games: Game[]
   selectedGameId?: string
   selectedDay?: string
   dayDispos: DayDispo[]
@@ -50,9 +37,9 @@ export function CalendarGrid({
   function buildUrl(y: number, m: number, opts: { gameId?: string; day?: string; own?: boolean } = {}) {
     const params = new URLSearchParams()
     params.set("month", `${y}-${pad(m)}`)
-    if (opts.gameId)  params.set("game", opts.gameId)
-    if (opts.day)     params.set("day", opts.day)
-    if (opts.own)     params.set("own", "1")
+    if (opts.gameId) params.set("game", opts.gameId)
+    if (opts.day) params.set("day", opts.day)
+    if (opts.own) params.set("own", "1")
     return `/?${params}`
   }
 
@@ -60,7 +47,7 @@ export function CalendarGrid({
     let m = month + dir
     let y = year
     if (m > 12) { m = 1; y++ }
-    if (m < 1)  { m = 12; y-- }
+    if (m < 1) { m = 12; y-- }
     router.push(buildUrl(y, m, { gameId: selectedGameId, own: showOwn }))
   }
 
@@ -133,11 +120,10 @@ export function CalendarGrid({
           </select>
           <button
             onClick={toggleOwn}
-            className={`border px-4 py-2 text-sm tracking-widest uppercase transition-colors ${
-              showOwn
-                ? "border-screen-glow text-screen-glow bg-screen-glow/10 glow-text-sm"
-                : "border-screen-border text-screen-muted hover:border-screen-muted"
-            }`}
+            className={`border px-4 py-2 text-sm tracking-widest uppercase transition-colors ${showOwn
+              ? "border-screen-glow text-screen-glow bg-screen-glow/10 glow-text-sm"
+              : "border-screen-border text-screen-muted hover:border-screen-muted"
+              }`}
           >
             Mes dispos
           </button>
@@ -178,6 +164,12 @@ export function CalendarGrid({
       </div>
 
       <DispoModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        games={games}
+      />
+
+      <OfferModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         games={games}

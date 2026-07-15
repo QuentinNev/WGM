@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation"
 import { createDispo } from "@/app/(app)/disponibilite/actions"
 import { createGame } from "@/app/(app)/games/actions"
 import { EmojiPicker } from "@/components/ui/EmojiPicker"
-
-type Game = { id: string; name: string; emoji: string }
+import type { Game } from "@/lib/types"
 
 type Props = {
   isOpen: boolean

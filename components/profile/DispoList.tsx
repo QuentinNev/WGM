@@ -3,21 +3,7 @@
 import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
 import { deleteDispo, updateDispo } from "@/app/(app)/disponibilite/actions"
-
-type Dispo = {
-  id: string
-  date: string
-  timeStart: string
-  timeEnd: string | null
-  format: string | null
-  notes: string | null
-  gameId: string
-  army: string | null
-  gameEmoji: string
-  gameName: string
-}
-
-type Game = { id: string; name: string; emoji: string }
+import type { Dispo, Game } from "@/lib/types"
 
 const inputClass =
   "w-full border border-screen-border bg-screen-surface px-3 py-1.5 text-sm text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none transition-colors"
