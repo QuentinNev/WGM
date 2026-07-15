@@ -3,7 +3,7 @@
 import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
 import { deleteDispo, updateDispo } from "@/app/(app)/disponibilities/actions"
-import type { Dispo, Game } from "@/lib/types"
+import type { Dispo, Game, Offer } from "@/lib/types"
 
 const inputClass =
   "w-full border border-screen-border bg-screen-surface px-3 py-1.5 text-sm text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none transition-colors"
@@ -165,6 +165,10 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
       )}
     </div>
   )
+}
+
+function OfferCard({ offer }: { offer: Offer; }) {
+
 }
 
 export function DispoList({ dispos, games }: { dispos: Dispo[]; games: Game[] }) {
