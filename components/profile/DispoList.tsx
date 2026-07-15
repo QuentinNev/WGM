@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
-import { deleteDispo, updateDispo } from "@/app/(app)/disponibilite/actions"
+import { deleteDispo, updateDispo } from "@/app/(app)/disponibilities/actions"
 import type { Dispo, Game } from "@/lib/types"
 
 const inputClass =
@@ -60,8 +60,8 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
           <button
             onClick={() => setEditing((v) => !v)}
             className={`border px-3 py-1 text-xs transition-colors ${editing
-                ? "border-screen-glow text-screen-glow bg-screen-glow/10"
-                : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
+              ? "border-screen-glow text-screen-glow bg-screen-glow/10"
+              : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
               }`}
           >
             Éditer

@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
-import { saveProfile } from "@/app/(app)/profile/actions"
+import { saveProfile } from "@/app/(app)/profiles/actions"
 import type { profiles } from "@/lib/db/schema"
 import type { InferSelectModel } from "drizzle-orm"
 

@@ -2,7 +2,7 @@
 
 import { useTransition, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { createDispo } from "@/app/(app)/disponibilite/actions"
+import { createDispo } from "@/app/(app)/disponibilities/actions"
 import { createGame } from "@/app/(app)/games/actions"
 import { EmojiPicker } from "@/components/ui/EmojiPicker"
 import type { Game } from "@/lib/types"

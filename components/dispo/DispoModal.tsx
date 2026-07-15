@@ -2,7 +2,7 @@
 
 import { useTransition, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { createDispo } from "@/app/(app)/disponibilite/actions"
+import { createDispo } from "@/app/(app)/disponibilities/actions"
 import { createGame } from "@/app/(app)/games/actions"
 import { EmojiPicker } from "@/components/ui/EmojiPicker"
 import type { Game } from "@/lib/types"
@@ -118,8 +118,8 @@ export function DispoModal({ isOpen, onClose, games }: Props) {
                 type="button"
                 onClick={() => setShowNewGame((v) => !v)}
                 className={`shrink-0 border px-3 py-2 text-sm transition-colors ${showNewGame
-                    ? "border-screen-glow text-screen-glow bg-screen-glow/10"
-                    : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
+                  ? "border-screen-glow text-screen-glow bg-screen-glow/10"
+                  : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
                   }`}
               >
                 +
