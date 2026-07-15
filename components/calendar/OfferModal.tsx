@@ -2,10 +2,7 @@
 
 import { useTransition, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { createDispo } from "@/app/(app)/disponibilities/actions"
-import { createGame } from "@/app/(app)/games/actions"
-import { EmojiPicker } from "@/components/ui/EmojiPicker"
-import type { Game } from "@/lib/types"
+import { createOffer } from "@/app/(app)/offers/actions"
 
 type Props = {
   isOpen: boolean
@@ -21,15 +18,6 @@ const labelClass = "block text-xs text-screen-muted tracking-widest uppercase mb
 export function OfferModal({ isOpen, onClose, availabilityId }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [army, setArmy] = useState("")
-  const [message, setMessage] = useState("")
-
-  useEffect(() => {
-    if (!isOpen) {
-      setArmy("")
-      setMessage("")
-    }
-  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -39,7 +27,7 @@ export function OfferModal({ isOpen, onClose, availabilityId }: Props) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     startTransition(async () => {
-      await createDispo(formData)
+      await createOffer(formData)
       router.refresh()
       onClose()
     })
@@ -81,6 +69,8 @@ export function OfferModal({ isOpen, onClose, availabilityId }: Props) {
               className={`${inputClass} resize-none`}
             />
           </div>
+
+          <input type="hidden" name="availabilityId" value={availabilityId} />
 
           <button
             type="submit"
