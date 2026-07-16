@@ -174,6 +174,7 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
 
 function OfferCard({ offer }: { offer: Offer; }) {
   return (<div>
+    {offer.sender?.pseudo}
     {offer.army}
     {offer.message}
   </div>);

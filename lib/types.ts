@@ -23,11 +23,18 @@ export type Dispo = {
   offers: Offer[] | null;
 };
 
+export type OfferSender = {
+  pseudo: string;
+  phone: string | null;
+  contactEmail: string | null;
+};
+
 export type Offer = {
   id: string;
   dispo?: Dispo;
   army: string | null;
   message: string | null;
+  sender: OfferSender | null;
 };
 
 export type DayDispo = {
