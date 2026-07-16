@@ -39,7 +39,7 @@ export function getMonthAvailabilities({
         lte(availabilities.date, endDate),
         gameId ? eq(availabilities.gameId, gameId) : undefined,
         !showOwn ? ne(availabilities.userId, userId) : undefined,
-        eq(availabilities.status, availStatusEnum.enumValues[0])
+        eq(availabilities.status, availStatusEnum.enumValues[0]) // Only include availabilities with status "pending"
       )
     )
     .groupBy(availabilities.date, games.emoji)
@@ -83,6 +83,7 @@ export function getDayAvailabilities({
       and(
         eq(availabilities.date, day),
         !showOwn ? ne(availabilities.userId, userId) : undefined,
+        eq(availabilities.status, availStatusEnum.enumValues[0]) // Only include availabilities with status "pending"
       )
     )
     .orderBy(availabilities.timeStart)
