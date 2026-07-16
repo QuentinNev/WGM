@@ -61,7 +61,7 @@ export async function createOffer(formData: FormData) {
       senderProfile?.contactEmail ? `Email : ${senderProfile.contactEmail}` : null,
     ].filter(Boolean).join("\n");
 
-    const res = await resend.emails.send({
+    await resend.emails.send({
       from: FROM_EMAIL,
       to: row.email,
       subject: `${senderProfile?.pseudo ?? session.user.name} est intéressé pour jouer à ${row.gameEmoji} ${row.gameName} le ${row.date}`,
@@ -79,8 +79,6 @@ export async function createOffer(formData: FormData) {
         `${baseUrl}/profiles`,
       ].filter((l) => l !== null).join("\n"),
     });
-
-    console.log("Email sent:", res);
   }
 
   revalidatePath("/");
