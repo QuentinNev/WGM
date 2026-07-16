@@ -2,22 +2,9 @@
 
 import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
-import { deleteDispo, updateDispo } from "@/app/(app)/disponibilite/actions"
-
-type Dispo = {
-  id: string
-  date: string
-  timeStart: string
-  timeEnd: string | null
-  format: string | null
-  notes: string | null
-  gameId: string
-  army: string | null
-  gameEmoji: string
-  gameName: string
-}
-
-type Game = { id: string; name: string; emoji: string }
+import { deleteDispo, updateDispo } from "@/app/(app)/disponibilities/actions"
+import { acceptOffer } from "@/app/(app)/offers/actions"
+import type { Dispo, Game, Offer } from "@/lib/types"
 
 const inputClass =
   "w-full border border-screen-border bg-screen-surface px-3 py-1.5 text-sm text-screen-base placeholder:text-screen-muted focus:border-screen-glow focus:outline-none transition-colors"
@@ -29,6 +16,8 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
   const [isDeleting, startDelete] = useTransition()
   const [isSaving, startSave] = useTransition()
   const [editing, setEditing] = useState(false)
+  const [offersOpen, setOffersOpen] = useState(false)
+  const offerCount = dispo.offers?.length ?? 0
 
   const isPast = dispo.date < new Date().toISOString().split("T")[0]
 
@@ -74,8 +63,8 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
           <button
             onClick={() => setEditing((v) => !v)}
             className={`border px-3 py-1 text-xs transition-colors ${editing
-                ? "border-screen-glow text-screen-glow bg-screen-glow/10"
-                : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
+              ? "border-screen-glow text-screen-glow bg-screen-glow/10"
+              : "border-screen-border text-screen-muted hover:border-screen-glow hover:text-screen-glow"
               }`}
           >
             Éditer
@@ -89,6 +78,23 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
           </button>
         </div>
       </div>
+
+      {offerCount > 0 && (
+        <div className="border-t border-screen-border">
+          <button
+            onClick={() => setOffersOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-2 text-xs text-screen-muted hover:text-screen-base transition-colors"
+          >
+            <span>{offerCount} offre{offerCount > 1 ? "s" : ""}</span>
+            <span>{offersOpen ? "▲" : "▼"}</span>
+          </button>
+          {offersOpen && (
+            <div className="px-4 pb-4 space-y-2">
+              {dispo.offers!.map((o) => <OfferCard key={o.id} offer={o} />)}
+            </div>
+          )}
+        </div>
+      )}
 
       {editing && (
         <form onSubmit={handleSave} className="border-t border-screen-border p-4 space-y-3">
@@ -176,6 +182,54 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
             </button>
           </div>
         </form>
+      )}
+    </div>
+  )
+}
+
+function OfferCard({ offer }: { offer: Offer }) {
+  const router = useRouter()
+  const [isAccepting, startAccept] = useTransition()
+  const accepted = offer.status === "accepted"
+
+  function handleAccept() {
+    startAccept(async () => {
+      await acceptOffer(offer.id)
+      router.refresh()
+    })
+  }
+
+  return (
+    <div className="border border-screen-border bg-screen-surface p-3 space-y-2">
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-sm text-screen-bright">
+          {offer.sender?.pseudo ?? "Anonyme"}
+          {offer.army && <span className="text-screen-muted"> — {offer.army}</span>}
+        </span>
+        {accepted ? (
+          <span className="text-xs text-screen-glow tracking-widest">Acceptée</span>
+        ) : (
+          <button
+            onClick={handleAccept}
+            disabled={isAccepting}
+            className="border border-screen-glow px-3 py-1 text-xs text-screen-glow hover:bg-screen-glow/10 disabled:opacity-40 transition-colors"
+          >
+            {isAccepting ? "..." : "Accepter"}
+          </button>
+        )}
+      </div>
+      {offer.message && (
+        <p className="text-xs text-screen-base leading-relaxed">{offer.message}</p>
+      )}
+      {(offer.sender?.phone || offer.sender?.contactEmail) && (
+        <div className="flex flex-wrap gap-4 pt-2 border-t border-screen-border text-xs text-screen-muted">
+          {offer.sender.phone && (
+            <span>Tél. <span className="text-screen-base">{offer.sender.phone}</span></span>
+          )}
+          {offer.sender.contactEmail && (
+            <span>Email <span className="text-screen-base">{offer.sender.contactEmail}</span></span>
+          )}
+        </div>
       )}
     </div>
   )

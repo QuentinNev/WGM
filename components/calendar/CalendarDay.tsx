@@ -1,8 +1,10 @@
+import type { GameCount } from "@/lib/types"
+
 type Props = {
   day: number
   isToday: boolean
   isSelected: boolean
-  counts: { emoji: string; count: number }[]
+  counts: GameCount[]
   onClick: () => void
 }
 
