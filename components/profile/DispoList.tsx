@@ -15,6 +15,8 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
   const [isDeleting, startDelete] = useTransition()
   const [isSaving, startSave] = useTransition()
   const [editing, setEditing] = useState(false)
+  const [offersOpen, setOffersOpen] = useState(false)
+  const offerCount = dispo.offers?.length ?? 0
 
   const isPast = dispo.date < new Date().toISOString().split("T")[0]
 
@@ -55,11 +57,6 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
           {dispo.notes && !editing && (
             <div className="text-xs text-screen-base opacity-80">{dispo.notes}</div>
           )}
-          {dispo.offers && (
-            <div className="text-xs text-screen-muted opacity-80">
-              {dispo.offers.map((o) => <OfferCard key={o.id} offer={o} />)}
-            </div>
-          )}
         </div>
         <div className="flex shrink-0 gap-2">
           <button
@@ -80,6 +77,23 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
           </button>
         </div>
       </div>
+
+      {offerCount > 0 && (
+        <div className="border-t border-screen-border">
+          <button
+            onClick={() => setOffersOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-2 text-xs text-screen-muted hover:text-screen-base transition-colors"
+          >
+            <span>{offerCount} offre{offerCount > 1 ? "s" : ""}</span>
+            <span>{offersOpen ? "▲" : "▼"}</span>
+          </button>
+          {offersOpen && (
+            <div className="px-4 pb-4 space-y-2">
+              {dispo.offers!.map((o) => <OfferCard key={o.id} offer={o} />)}
+            </div>
+          )}
+        </div>
+      )}
 
       {editing && (
         <form onSubmit={handleSave} className="border-t border-screen-border p-4 space-y-3">
@@ -172,12 +186,30 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
   )
 }
 
-function OfferCard({ offer }: { offer: Offer; }) {
-  return (<div>
-    {offer.sender?.pseudo}
-    {offer.army}
-    {offer.message}
-  </div>);
+function OfferCard({ offer }: { offer: Offer }) {
+  return (
+    <div className="border border-screen-border bg-screen-surface p-3 space-y-2">
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-sm text-screen-bright">
+          {offer.sender?.pseudo ?? "Anonyme"} - {offer.army && offer.army}
+        </span>
+        
+      </div>
+      {offer.message && (
+        <p className="text-xs text-screen-base leading-relaxed">{offer.message}</p>
+      )}
+      {(offer.sender?.phone || offer.sender?.contactEmail) && (
+        <div className="flex flex-wrap gap-4 pt-2 border-t border-screen-border text-xs text-screen-muted">
+          {offer.sender.phone && (
+            <span>Tél. <span className="text-screen-base">{offer.sender.phone}</span></span>
+          )}
+          {offer.sender.contactEmail && (
+            <span>Email <span className="text-screen-base">{offer.sender.contactEmail}</span></span>
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export function DispoList({ dispos, games }: { dispos: Dispo[]; games: Game[] }) {
