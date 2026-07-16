@@ -1,47 +1,20 @@
 import { headers } from "next/headers";
-import { desc, eq, sql } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { availabilities, games, offers, profiles } from "@/lib/db/schema";
+import { games } from "@/lib/db/schema";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { DispoList } from "@/components/profile/DispoList";
 import { ScanlineToggle } from "@/components/options/ScanlineToggle";
 import { LogoutButton } from "@/components/profile/LogoutButton";
+import { getUserProfile, getUserDispos } from "@/lib/queries/profiles";
 
 export default async function ProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const userId = session!.user.id;
 
   const [profile, userDispos, allGames] = await Promise.all([
-    db.query.profiles.findFirst({
-      where: eq(profiles.userId, userId),
-    }),
-    db
-      .select({
-        id: availabilities.id,
-        date: availabilities.date,
-        timeStart: availabilities.timeStart,
-        timeEnd: availabilities.timeEnd,
-        format: availabilities.format,
-        notes: availabilities.notes,
-        gameId: availabilities.gameId,
-        army: availabilities.army,
-        gameEmoji: games.emoji,
-        gameName: games.name,
-        offers: sql<{ id: string; army: string | null; message: string | null }[]>`
-          coalesce(
-            json_agg(json_build_object('id', ${offers.id}, 'army', ${offers.army}, 'message', ${offers.message}))
-              filter (where ${offers.id} is not null),
-            '[]'
-          )
-        `,
-      })
-      .from(availabilities)
-      .innerJoin(games, eq(availabilities.gameId, games.id))
-      .leftJoin(offers, eq(offers.availabilityId, availabilities.id))
-      .where(eq(availabilities.userId, userId))
-      .groupBy(availabilities.id, games.emoji, games.name)
-      .orderBy(desc(availabilities.date), availabilities.timeStart),
+    getUserProfile(userId),
+    getUserDispos(userId),
     db.select().from(games),
   ]);
 

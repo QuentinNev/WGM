@@ -1,9 +1,9 @@
-import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { headers } from "next/headers"
 import { db } from "@/lib/db"
-import { availabilities, games, profiles, availStatusEnum } from "@/lib/db/schema"
+import { games } from "@/lib/db/schema"
 import { auth } from "@/lib/auth"
 import { CalendarGrid } from "@/components/calendar/CalendarGrid"
+import { getMonthAvailabilities, getDayAvailabilities } from "@/lib/queries/availabilities"
 
 export default async function CalendarPage({
   searchParams,
@@ -31,49 +31,9 @@ export default async function CalendarPage({
 
   const [allGames, rows, dayDispos] = await Promise.all([
     db.select().from(games),
-    db
-      .select({
-        date: availabilities.date,
-        emoji: games.emoji,
-        count: sql<number>`cast(count(*) as int)`,
-      })
-      .from(availabilities)
-      .innerJoin(games, eq(availabilities.gameId, games.id))
-      .where(
-        and(
-          gte(availabilities.date, startDate),
-          lte(availabilities.date, endDate),
-          gameId ? eq(availabilities.gameId, gameId) : undefined,
-          !showOwn ? ne(availabilities.userId, userId) : undefined,
-          eq(availabilities.status, availStatusEnum.enumValues[0])
-        )
-      )
-      .groupBy(availabilities.date, games.emoji),
+    getMonthAvailabilities({ startDate, endDate, gameId, userId, showOwn }),
     selectedDay
-      ? db
-        .select({
-          id: availabilities.id,
-          timeStart: availabilities.timeStart,
-          timeEnd: availabilities.timeEnd,
-          format: availabilities.format,
-          notes: availabilities.notes,
-          army: availabilities.army,
-          gameEmoji: games.emoji,
-          gameName: games.name,
-          pseudo: profiles.pseudo,
-          phone: profiles.phone,
-          contactEmail: profiles.contactEmail,
-        })
-        .from(availabilities)
-        .innerJoin(games, eq(availabilities.gameId, games.id))
-        .leftJoin(profiles, eq(availabilities.userId, profiles.userId))
-        .where(
-          and(
-            eq(availabilities.date, selectedDay),
-            !showOwn ? ne(availabilities.userId, userId) : undefined,
-          )
-        )
-        .orderBy(availabilities.timeStart)
+      ? getDayAvailabilities({ day: selectedDay, userId, showOwn })
       : Promise.resolve([]),
   ])
 
