@@ -24,12 +24,13 @@ export function getUserDispos(userId: string) {
       army: availabilities.army,
       gameEmoji: games.emoji,
       gameName: games.name,
-      offers: sql<{ id: string; army: string | null; message: string | null; sender: { pseudo: string; phone: string | null; contactEmail: string | null } | null }[]>`
+      offers: sql<{ id: string; army: string | null; message: string | null; status: "pending" | "accepted" | "declined"; sender: { pseudo: string; phone: string | null; contactEmail: string | null } | null }[]>`
         coalesce(
           json_agg(json_build_object(
             'id', ${offers.id},
             'army', ${offers.army},
             'message', ${offers.message},
+            'status', ${offers.status},
             'sender', case when ${offerProfiles.pseudo} is not null then json_build_object(
               'pseudo', ${offerProfiles.pseudo},
               'phone', ${offerProfiles.phone},

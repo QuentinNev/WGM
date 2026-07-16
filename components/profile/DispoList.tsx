@@ -3,6 +3,7 @@
 import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
 import { deleteDispo, updateDispo } from "@/app/(app)/disponibilities/actions"
+import { acceptOffer } from "@/app/(app)/offers/actions"
 import type { Dispo, Game, Offer } from "@/lib/types"
 
 const inputClass =
@@ -187,13 +188,35 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
 }
 
 function OfferCard({ offer }: { offer: Offer }) {
+  const router = useRouter()
+  const [isAccepting, startAccept] = useTransition()
+  const accepted = offer.status === "accepted"
+
+  function handleAccept() {
+    startAccept(async () => {
+      await acceptOffer(offer.id)
+      router.refresh()
+    })
+  }
+
   return (
     <div className="border border-screen-border bg-screen-surface p-3 space-y-2">
       <div className="flex items-center justify-between gap-4">
         <span className="text-sm text-screen-bright">
-          {offer.sender?.pseudo ?? "Anonyme"} - {offer.army && offer.army}
+          {offer.sender?.pseudo ?? "Anonyme"}
+          {offer.army && <span className="text-screen-muted"> — {offer.army}</span>}
         </span>
-        
+        {accepted ? (
+          <span className="text-xs text-screen-glow tracking-widest">Acceptée</span>
+        ) : (
+          <button
+            onClick={handleAccept}
+            disabled={isAccepting}
+            className="border border-screen-glow px-3 py-1 text-xs text-screen-glow hover:bg-screen-glow/10 disabled:opacity-40 transition-colors"
+          >
+            {isAccepting ? "..." : "Accepter"}
+          </button>
+        )}
       </div>
       {offer.message && (
         <p className="text-xs text-screen-base leading-relaxed">{offer.message}</p>

@@ -34,6 +34,7 @@ export type Offer = {
   dispo?: Dispo;
   army: string | null;
   message: string | null;
+  status: "pending" | "accepted" | "declined";
   sender: OfferSender | null;
 };
 
