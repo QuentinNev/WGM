@@ -16,6 +16,15 @@ export async function createOffer(formData: FormData) {
   const army = (formData.get("army") as string) || null;
   const message = (formData.get("message") as string) || null;
 
+  if (process.env.NODE_ENV === "production") {
+    const [avail] = await db
+      .select({ userId: availabilities.userId })
+      .from(availabilities)
+      .where(eq(availabilities.id, availabilityId));
+    if (avail?.userId === session.user.id)
+      throw new Error("Impossible d'envoyer une offre sur votre propre disponibilité");
+  }
+
   await db.insert(offers).values({
     senderId: session.user.id,
     availabilityId,

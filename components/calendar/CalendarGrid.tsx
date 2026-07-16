@@ -23,11 +23,12 @@ type Props = {
   selectedDay?: string
   dayDispos: DayDispo[]
   showOwn: boolean
+  currentUserId: string
 }
 
 export function CalendarGrid({
   year, month, byDate, games,
-  selectedGameId, selectedDay, dayDispos, showOwn,
+  selectedGameId, selectedDay, dayDispos, showOwn, currentUserId,
 }: Props) {
   const router = useRouter()
   const [dispoModalOpen, setDispoModalOpen] = useState(false)
@@ -160,7 +161,7 @@ export function CalendarGrid({
 
         {/* Détail du jour sélectionné */}
         {selectedDay && (
-          <DayDetail date={selectedDay} dispos={dayDispos} openOfferModal={(availabilityId) => {
+          <DayDetail date={selectedDay} dispos={dayDispos} currentUserId={currentUserId} openOfferModal={(availabilityId) => {
             setOfferAvailabilityId(availabilityId)
             setOfferModalOpen(true)
           }} />

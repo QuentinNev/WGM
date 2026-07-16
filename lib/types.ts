@@ -40,6 +40,7 @@ export type Offer = {
 
 export type DayDispo = {
   id: string;
+  userId: string;
   timeStart: string;
   timeEnd: string | null;
   format: string | null;

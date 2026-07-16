@@ -6,6 +6,7 @@ import type { DayDispo } from "@/lib/types"
 type Props = {
   date: string
   dispos: DayDispo[]
+  currentUserId: string
   openOfferModal: (availabilityId: string) => void
 }
 
@@ -80,7 +81,7 @@ function ContactModal({ dispo, onClose }: { dispo: DayDispo; onClose: () => void
   )
 }
 
-export function DayDetail({ date, dispos, openOfferModal }: Props) {
+export function DayDetail({ date, dispos, currentUserId, openOfferModal }: Props) {
   const [contactDispo, setContactDispo] = useState<DayDispo | null>(null)
 
   const formatted = new Date(date + "T00:00:00").toLocaleDateString("fr-FR", {
@@ -132,12 +133,14 @@ export function DayDetail({ date, dispos, openOfferModal }: Props) {
                 >
                   ▶ Contact
                 </button>*/}
-                <button
-                  onClick={() => openOfferModal(d.id)}
-                  className="mt-3 ml-2 border border-screen-glow px-3 py-1 text-xs text-screen-glow hover:bg-screen-glow/10 transition-colors"
-                >
-                  ▶ Envoyer une offre
-                </button>
+                {(d.userId !== currentUserId || process.env.NODE_ENV !== "production") && (
+                  <button
+                    onClick={() => openOfferModal(d.id)}
+                    className="mt-3 ml-2 border border-screen-glow px-3 py-1 text-xs text-screen-glow hover:bg-screen-glow/10 transition-colors"
+                  >
+                    ▶ Envoyer une offre
+                  </button>
+                )}
               </div>
             ))}
           </div>

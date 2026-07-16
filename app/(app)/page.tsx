@@ -56,6 +56,7 @@ export default async function CalendarPage({
       selectedDay={selectedDay}
       dayDispos={dayDispos}
       showOwn={showOwn}
+      currentUserId={userId}
     />
   )
 }

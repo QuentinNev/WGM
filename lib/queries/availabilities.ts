@@ -65,6 +65,7 @@ export function getDayAvailabilities({
   return db
     .select({
       id: availabilities.id,
+      userId: availabilities.userId,
       timeStart: availabilities.timeStart,
       timeEnd: availabilities.timeEnd,
       format: availabilities.format,
