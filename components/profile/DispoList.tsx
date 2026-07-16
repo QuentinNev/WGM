@@ -55,6 +55,11 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
           {dispo.notes && !editing && (
             <div className="text-xs text-screen-base opacity-80">{dispo.notes}</div>
           )}
+          {dispo.offers && (
+            <div className="text-xs text-screen-muted opacity-80">
+              {dispo.offers.map((o) => <OfferCard key={o.id} offer={o} />)}
+            </div>
+          )}
         </div>
         <div className="flex shrink-0 gap-2">
           <button
@@ -168,9 +173,10 @@ function DispoCard({ dispo, games }: { dispo: Dispo; games: Game[] }) {
 }
 
 function OfferCard({ offer }: { offer: Offer; }) {
-  return <div>
-    
-  </div>
+  return (<div>
+    {offer.army}
+    {offer.message}
+  </div>);
 }
 
 export function DispoList({ dispos, games }: { dispos: Dispo[]; games: Game[] }) {
