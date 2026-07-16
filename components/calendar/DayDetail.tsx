@@ -1,24 +1,13 @@
 "use client"
 
 import { useState } from "react"
-
-type DayDispo = {
-  id: string
-  timeStart: string
-  timeEnd: string | null
-  format: string | null
-  notes: string | null
-  army: string | null
-  gameEmoji: string
-  gameName: string
-  pseudo: string | null
-  phone: string | null
-  contactEmail: string | null
-}
+import type { DayDispo } from "@/lib/types"
 
 type Props = {
   date: string
   dispos: DayDispo[]
+  currentUserId: string
+  openOfferModal: (availabilityId: string) => void
 }
 
 function whatsappUrl(phone: string) {
@@ -92,7 +81,7 @@ function ContactModal({ dispo, onClose }: { dispo: DayDispo; onClose: () => void
   )
 }
 
-export function DayDetail({ date, dispos }: Props) {
+export function DayDetail({ date, dispos, currentUserId, openOfferModal }: Props) {
   const [contactDispo, setContactDispo] = useState<DayDispo | null>(null)
 
   const formatted = new Date(date + "T00:00:00").toLocaleDateString("fr-FR", {
@@ -138,12 +127,20 @@ export function DayDetail({ date, dispos }: Props) {
                   <p className="mt-2 text-xs text-screen-base opacity-80">{d.notes}</p>
                 )}
 
-                <button
+                {/*<button
                   onClick={() => setContactDispo(d)}
                   className="mt-3 border border-screen-amber px-3 py-1 text-xs text-screen-amber hover:bg-screen-amber/10 transition-colors"
                 >
                   ▶ Contact
-                </button>
+                </button>*/}
+                {(d.userId !== currentUserId || process.env.NODE_ENV !== "production") && (
+                  <button
+                    onClick={() => openOfferModal(d.id)}
+                    className="mt-3 ml-2 border border-screen-glow px-3 py-1 text-xs text-screen-glow hover:bg-screen-glow/10 transition-colors"
+                  >
+                    ▶ Envoyer une offre
+                  </button>
+                )}
               </div>
             ))}
           </div>

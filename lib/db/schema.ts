@@ -2,11 +2,18 @@ import {
   boolean,
   date,
   pgTable,
+  pgEnum,
   text,
   time,
   timestamp,
   uuid,
-} from "drizzle-orm/pg-core"
+} from "drizzle-orm/pg-core";
+
+export const availStatusEnum = pgEnum("availability_status", [
+  "pending",
+  "accepted",
+  "declined",
+]);
 
 // --- Better Auth required tables ---
 
@@ -18,7 +25,7 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-})
+});
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -31,7 +38,7 @@ export const session = pgTable("session", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-})
+});
 
 export const account = pgTable("account", {
   id: text("id").primaryKey(),
@@ -49,7 +56,7 @@ export const account = pgTable("account", {
   password: text("password"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-})
+});
 
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
@@ -58,7 +65,7 @@ export const verification = pgTable("verification", {
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
-})
+});
 
 // --- App tables ---
 
@@ -67,7 +74,7 @@ export const games = pgTable("games", {
   name: text("name").notNull(),
   emoji: text("emoji").notNull(),
   slug: text("slug").notNull().unique(),
-})
+});
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -79,7 +86,7 @@ export const profiles = pgTable("profiles", {
   phone: text("phone"),
   contactEmail: text("contact_email"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-})
+});
 
 export const profileGames = pgTable("profile_games", {
   profileId: uuid("profile_id")
@@ -88,7 +95,7 @@ export const profileGames = pgTable("profile_games", {
   gameId: uuid("game_id")
     .notNull()
     .references(() => games.id, { onDelete: "cascade" }),
-})
+});
 
 export const availabilities = pgTable("availabilities", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -104,5 +111,20 @@ export const availabilities = pgTable("availabilities", {
   timeEnd: time("time_end"),
   format: text("format"),
   notes: text("notes"),
+  status: availStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-})
+});
+
+export const offers = pgTable("offers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  senderId: text("sender_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  availabilityId: uuid("availability_id")
+    .notNull()
+    .references(() => availabilities.id, { onDelete: "cascade" }),
+  status: availStatusEnum("status").notNull().default("pending"),
+  message: text("message"),
+  army: text("army"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
