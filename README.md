@@ -1,18 +1,24 @@
-# 🎲 Wargame Matchmaker
+# 🎲 Where Gamers Meet
 
-> A matchmaking platform for wargame players — post your availability, find opponents.
+> A matchmaking platform for players — post your availability, find opponents.
 
 ---
 
 ## Overview
 
-Wargame Matchmaker lets wargame enthusiasts (Warhammer 40K, Age of Sigmar...) publish their availability slots and easily find opponents for a game.
+The idea came from a common problem among wargamers : Finding someone available for at least 4 hours. Using a group chat is the default way but messages can be missed.
+WGM offers a place where people can post their availabilities or look for available players, then the platform lets them get in touch.
+The goal is to keep it as simple as possible.
+
+WGM initially meant "WarGame Matchmaker" but changed for "Where Gamers Meet" to widen its scope to any kind of game or activity.
 
 **Typical use case:**
 
-1. You're free Saturday afternoon for a WH40K game with your Sisters of Battle
-2. You post your availability on Wargame Matchmaker
-3. Another player contacts you via your contact information
+1. You're free Saturday afternoon for a WH40K game with your prefered army
+2. You post your availability on WGM
+3. Another player sends you an offer (their army + an optional message)
+4. You receive an email notification with their contact details (phone / email)
+5. You accept the offer from your profile page — the availability is marked as matched
 
 ---
 
@@ -30,24 +36,33 @@ Wargame Matchmaker lets wargame enthusiasts (Warhammer 40K, Age of Sigmar...) pu
 
 ### Availability Calendar
 
-- Monthly view of the current month
+- Monthly view with navigation between months
 - Each day shows availabilities as emojis + count per game (e.g. ⚔️ 3 · 🃏 1)
-- Filter by game
+- Filter by game, toggle to show/hide your own availabilities
+- Only pending (not yet matched) availabilities are listed
 - Click a day → detailed list of availabilities for that day
 
 ### Creating an Availability
 
 - Date
 - Time slot (start / end)
-- Game
+- Game — pick an existing one or create a new game on the fly (name + emoji picker)
 - Format
 - Army
 - Free text field for details (skill level, location, points format...)
 
-### Viewing & Contacting
+### Offers
 
-- Click an availability → detailed view
-- **Contact** button → reveals the player's contact details (email or phone)
+- From a day's detail, send an **offer** on an availability (your army + an optional message)
+- The availability's owner receives an **email notification** including your contact details
+- Offers appear on the owner's profile page, under the matching availability
+- Accepting an offer marks both the offer and the availability as `accepted`
+
+### Profile Page
+
+- Edit your pseudo and contact details
+- List of your availabilities (upcoming / past), editable and deletable
+- Review and accept the offers you received
 
 ---
 
@@ -70,10 +85,12 @@ Wargame Matchmaker lets wargame enthusiasts (Warhammer 40K, Age of Sigmar...) pu
 
 ### Backend
 
-| Tool                                     | Purpose               |
-| ---------------------------------------- | --------------------- |
-| Next.js Route Handlers                   | Internal REST API     |
-| [Drizzle ORM](https://orm.drizzle.team/) | Type-safe SQL queries |
+| Tool                                     | Purpose                          |
+| ---------------------------------------- | -------------------------------- |
+| Next.js Server Actions                   | Mutations (dispos, offers, ...)  |
+| Next.js Route Handlers                   | Auth endpoints & profile check   |
+| [Drizzle ORM](https://orm.drizzle.team/) | Type-safe SQL queries            |
+| [Resend](https://resend.com/)            | Transactional emails (offers)    |
 
 ### Database
 
@@ -100,22 +117,28 @@ wgm/
 │   ├── (app)/
 │   │   ├── layout.tsx          # Protected layout (session required)
 │   │   ├── page.tsx            # Availability calendar (home page)
-│   │   └── disponibilite/      # Availability actions
+│   │   ├── disponibilities/    # Availability server actions
+│   │   ├── games/              # Game creation server action
+│   │   ├── offers/             # Offer server actions (create, accept)
+│   │   └── profiles/           # Profile page + server actions
 │   └── api/
 │       ├── auth/               # Better Auth handlers
 │       └── me/                 # Current user profile check
 ├── components/
-│   ├── calendar/               # Monthly grid + emojis + day detail
+│   ├── calendar/               # Monthly grid, day detail, offer modal
 │   ├── dispo/                  # Availability modal & forms
-│   ├── profile/                # Profile form & dispo list
+│   ├── profile/                # Profile form, dispo list & received offers
 │   ├── options/                # Display options (scanlines toggle)
 │   └── ui/                     # Generic components (emoji picker)
 ├── lib/
 │   ├── db/
 │   │   ├── schema.ts           # Drizzle schema
 │   │   └── index.ts            # DB client
+│   ├── queries/                # Shared read queries (availabilities, profiles)
 │   ├── auth.ts                 # Better Auth config
-│   └── auth-client.ts          # Better Auth client
+│   ├── auth-client.ts          # Better Auth client
+│   ├── resend.ts               # Resend client (email delivery)
+│   └── types.ts                # Shared TypeScript types
 └── drizzle/
     └── migrations/             # SQL migrations
 ```
@@ -138,7 +161,11 @@ profile_games (profile_id, game_id)
 availabilities (
   id, user_id, game_id,
   army, date, time_start, time_end,
-  format, notes, created_at
+  format, notes, status, created_at    -- status: pending | accepted | declined
+)
+offers (
+  id, sender_id, availability_id,
+  army, message, status, created_at    -- status: pending | accepted | declined
 )
 ```
 
@@ -184,8 +211,9 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ### Database
 
 ```bash
-npm run db:generate
-npm run db:migrate
+npm run db:generate   # generate migrations from the schema
+npm run db:migrate    # apply migrations
+npm run db:studio     # browse the database (Drizzle Studio)
 ```
 
 ### Run in Development
